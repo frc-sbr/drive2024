@@ -40,8 +40,8 @@ class Robot : public frc::TimedRobot {
  private:
 
   const int lmotor_pwm_channel_1 = 1;
-  const int lmotor_pwm_channel_2 = 2;
-  const int rmotor_pwm_channel_1 = 3;
+  const int lmotor_pwm_channel_2 = 3;
+  const int rmotor_pwm_channel_1 = 2;
   const int rmotor_pwm_channel_2 = 4;
 
   frc::Spark m_leftMotor1{lmotor_pwm_channel_1};
@@ -50,10 +50,7 @@ class Robot : public frc::TimedRobot {
 	frc::Spark m_rightMotor2{rmotor_pwm_channel_2};
 	
 	frc::DifferentialDrive m_robotDrive{m_leftMotor1, m_rightMotor1};
-  frc::SlewRateLimiter<units::scalar> filter{3/1_s};
+  frc::SlewRateLimiter<units::scalar> filter{6/1_s};
 
 	frc::PS4Controller controller{0};
-	units::second_t start_time;
-	units::second_t end_time;
-  std::string m_autoSelected;
 };

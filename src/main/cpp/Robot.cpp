@@ -11,7 +11,6 @@ void Robot::RobotInit() {
   m_rightMotor1.AddFollower(m_rightMotor2);
 
   m_rightMotor1.SetInverted(true);
-	m_rightMotor2.SetInverted(true);
 }
 
 /**
