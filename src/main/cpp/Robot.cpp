@@ -7,8 +7,8 @@
 #include <fmt/core.h>
 
 void Robot::RobotInit() {
-  m_leftMotor2.Follow(m_leftMotor1);
-  m_rightMotor2.Follow(m_rightMotor1);
+  m_leftMotor1.AddFollower(m_leftMotor2);
+  m_rightMotor1.AddFollower(m_rightMotor2);
 
   m_rightMotor1.SetInverted(true);
 	m_rightMotor2.SetInverted(true);

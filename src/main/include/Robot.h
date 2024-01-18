@@ -17,6 +17,7 @@
 #include <units/velocity.h>
 #include <units/time.h>
 #include <units/acceleration.h>
+#include <frc/motorcontrol/Spark.h>
 
 using namespace units;
 
@@ -38,15 +39,15 @@ class Robot : public frc::TimedRobot {
 
  private:
 
-  const int lmotor_can_id_1 = 1;
-  const int lmotor_can_id_2 = 2;
-  const int rmotor_can_id_1 = 3;
-  const int rmotor_can_id_2 = 4;
+  const int lmotor_pwm_channel_1 = 1;
+  const int lmotor_pwm_channel_2 = 2;
+  const int rmotor_pwm_channel_1 = 3;
+  const int rmotor_pwm_channel_2 = 4;
 
-  rev::CANSparkMax m_leftMotor1{lmotor_can_id_1, rev::CANSparkLowLevel::MotorType::kBrushless};
-	rev::CANSparkMax m_rightMotor1{rmotor_can_id_1, rev::CANSparkLowLevel::MotorType::kBrushless};
-  rev::CANSparkMax m_leftMotor2{lmotor_can_id_2, rev::CANSparkLowLevel::MotorType::kBrushless};
-	rev::CANSparkMax m_rightMotor2{rmotor_can_id_2, rev::CANSparkLowLevel::MotorType::kBrushless};
+  frc::Spark m_leftMotor1{lmotor_pwm_channel_1};
+	frc::Spark m_rightMotor1{rmotor_pwm_channel_1};
+  frc::Spark m_leftMotor2{lmotor_pwm_channel_2};
+	frc::Spark m_rightMotor2{rmotor_pwm_channel_2};
 	
 	frc::DifferentialDrive m_robotDrive{m_leftMotor1, m_rightMotor1};
   frc::SlewRateLimiter<units::scalar> filter{3/1_s};
