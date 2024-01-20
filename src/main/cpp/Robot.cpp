@@ -76,7 +76,7 @@ void Robot::RunClimber(double speed){
   if (abs(speed) < 0.05){
     speed = 0;
   }
-  
+
   m_climbMotorLeft.Set(speed);
   m_climbMotorRight.Set(speed);
 }
