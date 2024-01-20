@@ -11,6 +11,8 @@ void Robot::RobotInit() {
   m_rightMotor1.AddFollower(m_rightMotor2);
 
   m_rightMotor1.SetInverted(true);
+
+  m_climbMotorLeft.SetInverted(true);
 }
 
 /**
@@ -44,6 +46,14 @@ void Robot::TeleopInit() {}
 
 void Robot::TeleopPeriodic() {
   m_robotDrive.ArcadeDrive(-filter.Calculate(controller.GetLeftY()), -controller.GetLeftX());
+  RunClimber(controller.GetRightY());
+
+  if (controller.GetSquareButton()){
+    RunConveyor();
+  }
+  else{
+    m_conveyorMotor.Set(0);
+  }
 }
 
 void Robot::DisabledInit() {}
@@ -57,6 +67,19 @@ void Robot::TestPeriodic() {}
 void Robot::SimulationInit() {}
 
 void Robot::SimulationPeriodic() {}
+
+void Robot::RunConveyor(){
+  m_conveyorMotor.Set(0.3);
+}
+
+void Robot::RunClimber(double speed){
+  if (abs(speed) < 0.05){
+    speed = 0;
+  }
+  
+  m_climbMotorLeft.Set(speed);
+  m_climbMotorRight.Set(speed);
+}
 
 #ifndef RUNNING_FRC_TESTS
 int main() {

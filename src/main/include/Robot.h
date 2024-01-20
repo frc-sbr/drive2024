@@ -36,6 +36,8 @@ class Robot : public frc::TimedRobot {
   void TestPeriodic() override;
   void SimulationInit() override;
   void SimulationPeriodic() override;
+  void RunConveyor();
+  void RunClimber(double speed);
 
  private:
 
@@ -43,11 +45,18 @@ class Robot : public frc::TimedRobot {
   const int lmotor_pwm_channel_2 = 3;
   const int rmotor_pwm_channel_1 = 2;
   const int rmotor_pwm_channel_2 = 4;
+  const int convmotor_channel = 5;
+  const int climbmotor_channel1 = 6;
+  const int climbmotor_channel2 = 6;
 
   frc::Spark m_leftMotor1{lmotor_pwm_channel_1};
 	frc::Spark m_rightMotor1{rmotor_pwm_channel_1};
   frc::Spark m_leftMotor2{lmotor_pwm_channel_2};
 	frc::Spark m_rightMotor2{rmotor_pwm_channel_2};
+  frc::Spark m_conveyorMotor{convmotor_channel};
+  frc::Spark m_climbMotorLeft{climbmotor_channel1};
+  frc::Spark m_climbMotorRight{climbmotor_channel2};
+
 	
 	frc::DifferentialDrive m_robotDrive{m_leftMotor1, m_rightMotor1};
   frc::SlewRateLimiter<units::scalar> filter{6/1_s};
