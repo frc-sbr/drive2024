@@ -11,6 +11,8 @@ void Robot::RobotInit() {
   m_rightMotor1.AddFollower(m_rightMotor2);
 
   m_rightMotor1.SetInverted(true);
+
+  initVision();
 }
 
 /**
@@ -44,6 +46,8 @@ void Robot::TeleopInit() {}
 
 void Robot::TeleopPeriodic() {
   m_robotDrive.ArcadeDrive(-filter.Calculate(controller.GetLeftY()), -controller.GetLeftX());
+  
+  checkFrame(&m_robotDrive);
 }
 
 void Robot::DisabledInit() {}

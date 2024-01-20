@@ -18,6 +18,7 @@
 #include <units/time.h>
 #include <units/acceleration.h>
 #include <frc/motorcontrol/Spark.h>
+#include "Vision.hpp"
 
 using namespace units;
 
