@@ -5,6 +5,7 @@
 #pragma once
 
 #include <string>
+#include <thread>
 
 #include <frc/TimedRobot.h>
 #include <frc/smartdashboard/SendableChooser.h>
