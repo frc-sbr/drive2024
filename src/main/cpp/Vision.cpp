@@ -1,7 +1,7 @@
 #include "Vision.hpp"
 #include <units/length.h>
 
-int VisionThread(){
+int VisionThread(frc::DifferentialDrive& m_robotDrive){
 	cs::UsbCamera cam = frc::CameraServer::StartAutomaticCapture();
 	
 	cam.SetResolution(640, 480);
@@ -35,7 +35,7 @@ int VisionThread(){
 
 		cv::Size size = gray.size();
 
-		frc::AprilTagDetector::Results detections = detector.Detect(size.width, size.height, size.data);
+		frc::AprilTagDetector::Results detections = detector.Detect(size.width, size.height, gray.data);
 
 		for(const frc::AprilTagDetection* aprDetect : detections){
 			// TODO mess with hamming, see if 1 or 2 works better
@@ -54,6 +54,10 @@ int VisionThread(){
 				
 				frc::Transform3d pose = poseEstimator.Estimate(*aprDetect);
 
+				// pose.Z() is camera's distance to the tag
+				// pose.Y() is downwards relative to the camera
+				// pose.X() is right relative to the camera
+				// Unsure about rotation, pose.Rotation().Y() is possibly yaw 
 				std::stringstream dashboardText;
 				dashboardText << "Translate: " << units::length::to_string(pose.X())
 											<< ", " << units::length::to_string(pose.Y())
@@ -66,10 +70,22 @@ int VisionThread(){
 					"pose_" + std::to_string(aprDetect->GetId()),
 					dashboardText.str());
 
-				if(frc::GetAlliance() == frc::Alliance::kRed){
+				if(frc::DriverStation::GetAlliance() == frc::DriverStation::Alliance::kRed){
 					switch(aprDetect->GetId()){
 						// tag 5, at the red amp
 						case 5:{
+							if(aprDetect->GetCenter().x >= 320+alignmentBuffer){
+								// we too far right, gotta rotate left
+								m_robotDrive.ArcadeDrive(0.0, -0.1);
+							}
+							else if(aprDetect->GetCenter().x <= 320-alignmentBuffer){
+								// we too far left, gotta rotate right
+								m_robotDrive.ArcadeDrive(0.0, 0.1);
+							}
+							else{
+								// in alignment buffer (aligned)
+								frc::SmartDashboard::PutString("tag_" + std::to_string(aprDetect->GetId()), "aligned");
+							}
 						}
 						default: break;
 					}
@@ -78,7 +94,18 @@ int VisionThread(){
 					switch(aprDetect->GetId()){
 						// tag 6, at the blue amp
 						case 6:{
-
+							if(aprDetect->GetCenter().x >= 320+alignmentBuffer){
+								// we too far right, gotta rotate left
+								m_robotDrive.ArcadeDrive(0.0, -0.1);
+							}
+							else if(aprDetect->GetCenter().x <= 320-alignmentBuffer){
+								// we too far left, gotta rotate right
+								m_robotDrive.ArcadeDrive(0.0, 0.1);
+							}
+							else{
+								// in alignment buffer (aligned)
+								frc::SmartDashboard::PutString("tag_" + std::to_string(aprDetect->GetId()), "aligned");
+							}
 						}
 						default: break;
 					}
