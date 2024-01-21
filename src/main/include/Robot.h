@@ -40,10 +40,10 @@ class Robot : public frc::TimedRobot {
 
  private:
 
-  const int lmotor_pwm_channel_1 = 1;
-  const int lmotor_pwm_channel_2 = 3;
-  const int rmotor_pwm_channel_1 = 2;
-  const int rmotor_pwm_channel_2 = 4;
+  const int lmotor_pwm_channel_1 = 9;
+  const int lmotor_pwm_channel_2 = 8;
+  const int rmotor_pwm_channel_1 = 0;
+  const int rmotor_pwm_channel_2 = 1;
 
   frc::Spark m_leftMotor1{lmotor_pwm_channel_1};
 	frc::Spark m_rightMotor1{rmotor_pwm_channel_1};
