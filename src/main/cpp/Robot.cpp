@@ -12,8 +12,7 @@ void Robot::RobotInit() {
 
   m_rightMotor1.SetInverted(true);
 
-  m_climbMotorLeft.SetInverted(true);
-
+  //lighting
   m_led.SetLength(kLength);
   m_led.SetData(m_ledBuffer);
   m_led.Start();
@@ -27,8 +26,8 @@ void Robot::RobotInit() {
  * <p> This runs after the mode specific periodic functions, but before
  * LiveWindow and SmartDashboard integrated updating.
  */
-void Robot::RobotPeriodic() 
-{
+void Robot::RobotPeriodic() {
+  //lighting
   Rainbow();
   m_led.SetData(m_ledBuffer); //flushes buffer kinda? Do it after a LED func call
 }
@@ -54,14 +53,6 @@ void Robot::TeleopInit() {}
 
 void Robot::TeleopPeriodic() {
   m_robotDrive.ArcadeDrive(-filter.Calculate(controller.GetLeftY()), -controller.GetLeftX());
-  RunClimber(controller.GetRightY());
-
-  if (controller.GetSquareButton()){
-    RunConveyor();
-  }
-  else{
-    m_conveyorMotor.Set(0);
-  }
 }
 
 void Robot::DisabledInit() {}
@@ -76,20 +67,8 @@ void Robot::SimulationInit() {}
 
 void Robot::SimulationPeriodic() {}
 
-void Robot::RunConveyor(){
-  m_conveyorMotor.Set(0.3);
-}
-
-void Robot::RunClimber(double speed){
-  if (abs(speed) < 0.05){
-    speed = 0;
-  }
-  
-  m_climbMotorLeft.Set(speed);
-  m_climbMotorRight.Set(speed);
-}
-
-void Robot::Rainbow() {
+void Robot::Rainbow() 
+{
   for (int i = 0; i < kLength; i++) {
     const auto pixelHue = (firstPixelHue + (i * 180 / kLength)) % 180;
     m_ledBuffer[i].SetHSV(pixelHue, 255, 128);
