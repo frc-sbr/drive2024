@@ -13,7 +13,7 @@
 #include <frc/DriverStation.h>
 #include <frc/smartdashboard/SmartDashboard.h>
 
-int VisionThread();
+int VisionThread(frc::DifferentialDrive& m_robotDrive);
 
 // actually important values
 
@@ -26,6 +26,12 @@ const double camFocalLength = 3.67;
 const double camCX = 640*0.5;
 const double camCY = 480*0.5;
 
+/* 
+  a zone in the middle of the camera view that, if it contains an april tag, will not try to autoalign
+  must be less than half the camera width
+*/
+const int alignmentBuffer = 50;
+
 // less important visuals for driver to see 
-cv::Scalar outlineColor = cv::Scalar(0, 255, 0);
-cv::Scalar crossColor = cv::Scalar(0, 0, 255);
+inline cv::Scalar outlineColor = cv::Scalar(0, 255, 0);
+inline cv::Scalar crossColor = cv::Scalar(0, 0, 255);

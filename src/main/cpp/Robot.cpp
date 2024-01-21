@@ -12,7 +12,7 @@ void Robot::RobotInit() {
 
   m_rightMotor1.SetInverted(true);
 
-  std::thread visionThread(VisionThread);
+  std::thread visionThread(VisionThread, std::ref(m_robotDrive));
   visionThread.detach();
 }
 
