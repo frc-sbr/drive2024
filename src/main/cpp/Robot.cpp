@@ -12,7 +12,8 @@ void Robot::RobotInit() {
 
   m_rightMotor1.SetInverted(true);
 
-  initVision();
+  std::thread visionThread(VisionThread);
+  visionThread.detach();
 }
 
 /**
@@ -47,8 +48,6 @@ void Robot::TeleopInit() {}
 
 void Robot::TeleopPeriodic() {
   m_robotDrive.ArcadeDrive(-filter.Calculate(controller.GetLeftY()), -controller.GetLeftX());
-  
-  checkFrame(&m_robotDrive);
 }
 
 void Robot::DisabledInit() {}
