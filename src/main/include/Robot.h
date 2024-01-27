@@ -8,7 +8,7 @@
 
 #include <frc/TimedRobot.h>
 #include <frc/smartdashboard/SendableChooser.h>
-#include <frc/PS4Controller.h>
+#include <frc/Joystick.h>
 #include <frc/drive/DifferentialDrive.h>
 #include <frc/motorcontrol/MotorControllerGroup.h>
 #include <frc/filter/SlewRateLimiter.h>
@@ -53,5 +53,5 @@ class Robot : public frc::TimedRobot {
 	frc::DifferentialDrive m_robotDrive{m_leftMotor1, m_rightMotor1};
   frc::SlewRateLimiter<units::scalar> filter{6/1_s};
 
-	frc::PS4Controller controller{0};
+	frc::Joystick controller{1};
 };

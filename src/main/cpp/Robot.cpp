@@ -44,7 +44,7 @@ void Robot::AutonomousPeriodic() {
 void Robot::TeleopInit() {}
 
 void Robot::TeleopPeriodic() {
-  m_robotDrive.ArcadeDrive(-filter.Calculate(controller.GetLeftY()), -controller.GetLeftX());
+  m_robotDrive.ArcadeDrive(-filter.Calculate(controller.GetRawAxis(1))/2.0, -controller.GetRawAxis(4)/2.0);
 }
 
 void Robot::DisabledInit() {}
