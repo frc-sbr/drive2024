@@ -45,6 +45,12 @@ void Robot::TeleopInit() {}
 
 void Robot::TeleopPeriodic() {
   m_robotDrive.ArcadeDrive(-filter.Calculate(controller.GetRawAxis(1))/2.0, -controller.GetRawAxis(4)/2.0);
+  if (controller.GetSquareButton()){
+    RunConveyor();
+  }
+  else{
+    m_conveyorMotor.Set(0);
+  }
 }
 
 void Robot::DisabledInit() {}
