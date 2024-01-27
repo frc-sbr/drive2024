@@ -46,8 +46,6 @@ void Robot::TeleopInit() {}
 
 void Robot::TeleopPeriodic() {
   m_robotDrive.ArcadeDrive(-filter.Calculate(controller.GetLeftY()), -controller.GetLeftX());
-  RunClimber(controller.GetRightY());
-
   if (controller.GetSquareButton()){
     RunConveyor();
   }
