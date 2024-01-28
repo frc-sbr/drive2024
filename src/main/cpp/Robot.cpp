@@ -44,11 +44,13 @@ void Robot::AutonomousPeriodic() {
 void Robot::TeleopInit() {}
 
 void Robot::TeleopPeriodic() {
-  m_robotDrive.ArcadeDrive(-filter.Calculate(controller.GetRawAxis(1))/2.0, -controller.GetRawAxis(4)/2.0);
-  if (controller.GetSquareButton()){
-    RunConveyor();
-  }
-  else{
+  m_robotDrive.ArcadeDrive(-controller.GetRawAxis(1)/2.0, -controller.GetRawAxis(4)/2.0);
+  
+  if (controller.GetRawButton(5)){
+    RunConveyor(true);
+  } else if (controller.GetRawButton(6)){
+    RunConveyor(false);
+  } else{
     m_conveyorMotor.Set(0);
   }
 }
@@ -64,6 +66,24 @@ void Robot::TestPeriodic() {}
 void Robot::SimulationInit() {}
 
 void Robot::SimulationPeriodic() {}
+
+void Robot::RunConveyor(bool forward){
+  if (forward){
+    m_conveyorMotor.Set(0.15);
+  } else {
+    m_conveyorMotor.Set(-0.15);
+  }
+  
+}
+
+// void Robot::RunClimber(double speed){
+//   if (abs(speed) < 0.05){
+//     speed = 0;
+//   }
+
+//   m_climbMotorLeft.Set(speed);
+//   m_climbMotorRight.Set(speed);
+// }
 
 #ifndef RUNNING_FRC_TESTS
 int main() {
