@@ -37,7 +37,8 @@ class Robot : public frc::TimedRobot {
   void TestPeriodic() override;
   void SimulationInit() override;
   void SimulationPeriodic() override;
-  void RunConveyor(bool forward);
+  void RunConveyor();
+  void Drive();
 
  private:
 
@@ -56,5 +57,6 @@ class Robot : public frc::TimedRobot {
 	frc::DifferentialDrive m_robotDrive{m_leftMotor1, m_rightMotor1};
   frc::SlewRateLimiter<units::scalar> filter{6/1_s};
 
-	frc::Joystick controller{1};
+	frc::Joystick driveController{1};
+  frc::Joystick opController{2};
 };

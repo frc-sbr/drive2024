@@ -6,6 +6,8 @@
 
 #include <fmt/core.h>
 
+#define TURBO_ENABLED 1
+
 void Robot::RobotInit() {
   m_leftMotor1.AddFollower(m_leftMotor2);
   m_rightMotor1.AddFollower(m_rightMotor2);
@@ -13,28 +15,9 @@ void Robot::RobotInit() {
   m_rightMotor1.SetInverted(true);
 }
 
-/**
- * This function is called every 20 ms, no matter the mode. Use
- * this for items like diagnostics that you want ran during disabled,
- * autonomous, teleoperated and test.
- *
- * <p> This runs after the mode specific periodic functions, but before
- * LiveWindow and SmartDashboard integrated updating.
- */
 void Robot::RobotPeriodic() {
 }
 
-/**
- * This autonomous (along with the chooser code above) shows how to select
- * between different autonomous modes using the dashboard. The sendable chooser
- * code works with the Java SmartDashboard. If you prefer the LabVIEW Dashboard,
- * remove all of the chooser code and uncomment the GetString line to get the
- * auto name from the text box below the Gyro.
- *
- * You can add additional auto modes by adding additional comparisons to the
- * if-else structure below with additional strings. If using the SendableChooser
- * make sure to add them to the chooser code above as well.
- */
 void Robot::AutonomousInit() {
 }
 
@@ -44,15 +27,8 @@ void Robot::AutonomousPeriodic() {
 void Robot::TeleopInit() {}
 
 void Robot::TeleopPeriodic() {
-  m_robotDrive.ArcadeDrive(-controller.GetRawAxis(1)/2.0, -controller.GetRawAxis(4)/2.0);
-  
-  if (controller.GetRawButton(5)){
-    RunConveyor(true);
-  } else if (controller.GetRawButton(6)){
-    RunConveyor(false);
-  } else{
-    m_conveyorMotor.Set(0);
-  }
+  Drive();
+  RunConveyor();
 }
 
 void Robot::DisabledInit() {}
@@ -67,13 +43,26 @@ void Robot::SimulationInit() {}
 
 void Robot::SimulationPeriodic() {}
 
-void Robot::RunConveyor(bool forward){
-  if (forward){
-    m_conveyorMotor.Set(0.15);
-  } else {
-    m_conveyorMotor.Set(-0.15);
+void Robot::RunConveyor(){
+  if (opController.GetRawAxis(2)){
+    m_conveyorMotor.Set(opController.GetRawAxis(2) * 0.3);
+  } else if (opController.GetRawAxis(3)){
+    m_conveyorMotor.Set(-opController.GetRawAxis(3) * 0.3);
+  } else{
+    m_conveyorMotor.Set(0);
   }
-  
+}
+
+void Robot::Drive(){
+  #if TURBO_ENABLED 
+    if (driveController.GetRawAxis(3) > 0){
+      m_robotDrive.ArcadeDrive(-driveController.GetRawAxis(1) * (0.5 + 0.3 * driveController.GetRawAxis(3)), -driveController.GetRawAxis(4)*(0.5 + 0.3 * driveController.GetRawAxis(3)));
+    } else {
+      m_robotDrive.ArcadeDrive(-driveController.GetRawAxis(1)/2.0, -driveController.GetRawAxis(4)/2.0);
+    }
+  #else             
+    m_robotDrive.ArcadeDrive(-driveController.GetRawAxis(1)/2.0, -driveController.GetRawAxis(4)/2.0);
+  #endif            
 }
 
 // void Robot::RunClimber(double speed){
