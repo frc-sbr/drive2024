@@ -55,13 +55,9 @@ void Robot::RunConveyor(){
 
 void Robot::Drive(){
   #if TURBO_ENABLED 
-    if (driveController.GetRawAxis(3) > 0){
-      m_robotDrive.ArcadeDrive(-driveController.GetRawAxis(1) * (0.5 + 0.3 * driveController.GetRawAxis(3)), -driveController.GetRawAxis(4)*(0.5 + 0.3 * driveController.GetRawAxis(3)));
-    } else {
-      m_robotDrive.ArcadeDrive(-driveController.GetRawAxis(1)/2.0, -driveController.GetRawAxis(4)/2.0);
-    }
+    m_robotDrive.ArcadeDrive(driveController.GetRawAxis(1), -driveController.GetRawAxis(4));
   #else             
-    m_robotDrive.ArcadeDrive(-driveController.GetRawAxis(1)/2.0, -driveController.GetRawAxis(4)/2.0);
+    m_robotDrive.ArcadeDrive(driveController.GetRawAxis(1)/2.0, driveController.GetRawAxis(4)/2.0);
   #endif            
 }
 
