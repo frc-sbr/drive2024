@@ -54,14 +54,28 @@ void Robot::RunConveyor(){
 }
 
 void Robot::Drive(){
+  double leftJoystickValue = driveController.GetRawAxis(1);
+  double rightJoystickValue = driveController.GetRawAxis(4);
+
+  // Normalize input to have hypotenuse of 1
+  double var = sqrt((1/(pow(leftJoystickValue, 2) + pow(rightJoystickValue, 2))));
+  
+  double simulatedX = leftJoystickValue * var *
+                        ((leftJoystickValue > 0) ? 1 : -1);
+
+  double simulatedY = rightJoystickValue * var *
+                        ((rightJoystickValue > 0) ? 1 : -1);
+  
+
   #if TURBO_ENABLED 
-    if (driveController.GetRawAxis(3) > 0){
-      m_robotDrive.ArcadeDrive(-driveController.GetRawAxis(1) * (0.5 + 0.3 * driveController.GetRawAxis(3)), -driveController.GetRawAxis(4)*(0.5 + 0.3 * driveController.GetRawAxis(3)));
+    double boostEnabled = driveController.GetRawAxis(3);
+    if (boostEnabled) {
+      m_robotDrive.ArcadeDrive(simulatedX*(0.5 + 0.3 * driveController.GetRawAxis(3)), simulatedY/2*(0.5 + 0.3 * driveController.GetRawAxis(3)));
     } else {
-      m_robotDrive.ArcadeDrive(-driveController.GetRawAxis(1)/2.0, -driveController.GetRawAxis(4)/2.0);
+      m_robotDrive.ArcadeDrive(simulatedX*0.5, simulatedY*0.5);
     }
   #else             
-    m_robotDrive.ArcadeDrive(-driveController.GetRawAxis(1)/2.0, -driveController.GetRawAxis(4)/2.0);
+    m_robotDrive.ArcadeDrive(simulatedX*0.5, simulatedY*0.5);
   #endif            
 }
 
