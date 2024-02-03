@@ -2,7 +2,9 @@
 #include <units/length.h>
 
 int VisionThread(frc::DifferentialDrive& m_robotDrive){
-	cs::UsbCamera cam = frc::CameraServer::StartAutomaticCapture();
+	cs::UsbCamera cam = frc::CameraServer::StartAutomaticCapture(0);
+
+	cam.SetVideoMode(cs::VideoMode::kGray, 640, 480, 30);
 	
 	cam.SetResolution(640, 480);
 
