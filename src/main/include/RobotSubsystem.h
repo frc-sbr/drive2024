@@ -7,20 +7,28 @@
 #include <units/acceleration.h>
 #include <frc/motorcontrol/PWMSparkMax.h>
 #include <frc/Encoder.h>
+#include <frc/interfaces/Gyro.h>
 #include <frc/kinematics/DifferentialDriveKinematics.h>
 #include <frc/smartdashboard/SmartDashboard.h>
+#include <frc/kinematics/DifferentialDriveOdometry.h>
+#include <frc/geometry/Pose2d.h>
+#include <frc/controller/RamseteController.h>
+#include <AHRS.h>
 
 using namespace units;
 
 class RobotSubsystem{
     public:
         RobotSubsystem();
+        void Update();
+
         void RunConveyor(double speed);
         void JoystickDrive(double xSpeed, double zRotation, bool turnInPlace);
-        void Drive();
+
         double GetLeftEncoder();
         double GetRightEncoder();
-        void ResetEncoders();
+        frc::Pose2d GetPose();
+        void Reset();
 
     private:
         const int lmotor_pwm_channel_1 = 9;
@@ -38,7 +46,12 @@ class RobotSubsystem{
 
         frc::Encoder m_leftEncoder{1, 2};
         frc::Encoder m_rightEncoder{7, 8};
+        AHRS m_gyro{frc::SerialPort::kMXP};
 
         frc::DifferentialDrive m_robotDrive{m_leftMotor1, m_rightMotor1};
-        frc::DifferentialDriveKinematics m_kinematics{0.381_m};
+        // frc::DifferentialDriveKinematics m_kinematics{0.381_m};
+        frc::Pose2d m_pose{};
+        frc::DifferentialDriveOdometry m_odometry{m_gyro.GetRotation2d(), units::meter_t{m_leftEncoder.GetDistance()}, units::meter_t{m_rightEncoder.GetDistance()}};
+
+        frc::RamseteController m_controller;
 };

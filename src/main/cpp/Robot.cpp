@@ -10,6 +10,7 @@
 
 #define TURBO_ENABLED 1
 
+// ROBOT ===================================================================
 void Robot::RobotInit() {
   frc::CameraServer::StartAutomaticCapture();
 }
@@ -17,10 +18,15 @@ void Robot::RobotInit() {
 void Robot::RobotPeriodic() {
   frc::SmartDashboard::PutNumber("Left Encoder", m_robotSubsystem.GetLeftEncoder());
   frc::SmartDashboard::PutNumber("Right Encoder", m_robotSubsystem.GetRightEncoder());
+
+  frc::SmartDashboard::PutNumber("Pose X", m_robotSubsystem.GetPose().X().value());
+  frc::SmartDashboard::PutNumber("Pose Y", m_robotSubsystem.GetPose().Y().value());
+  frc::SmartDashboard::PutNumber("Pose Rotation", m_robotSubsystem.GetPose().Rotation().Degrees().value());
 }
 
+// AUTON  ==================================================================
 void Robot::AutonomousInit() {
-  m_robotSubsystem.ResetEncoders();
+  m_robotSubsystem.Reset();
 }
 
 void Robot::AutonomousPeriodic() {
@@ -31,8 +37,9 @@ void Robot::AutonomousPeriodic() {
   }
 }
 
+// TELEOP ==================================================================
 void Robot::TeleopInit() {
-  m_robotSubsystem.ResetEncoders();
+  m_robotSubsystem.Reset();
 }
 
 void Robot::TeleopPeriodic() {

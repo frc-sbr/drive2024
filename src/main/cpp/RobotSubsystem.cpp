@@ -16,21 +16,19 @@ RobotSubsystem::RobotSubsystem(){
     m_rightEncoder.SetReverseDirection(true);
 }
 
+void RobotSubsystem::Update() {
+    // Get the rotation of the robot from the gyro.
+    frc::Rotation2d gyroAngle = m_gyro.GetRotation2d();
+
+    // Update the pose
+    m_pose = m_odometry.Update(gyroAngle,
+        units::meter_t{m_leftEncoder.GetDistance()},
+        units::meter_t{m_rightEncoder.GetDistance()});
+}
+
+
 void RobotSubsystem::RunConveyor(double speed){
     m_conveyorMotor.Set(speed * 0.3);
-}
-
-double RobotSubsystem::GetLeftEncoder(){
-    return m_leftEncoder.GetDistance();
-}
-
-double RobotSubsystem::GetRightEncoder(){
-    return m_rightEncoder.GetDistance();
-}
-
-void RobotSubsystem::ResetEncoders(){
-    m_leftEncoder.Reset();
-    m_rightEncoder.Reset();
 }
 
 void RobotSubsystem::JoystickDrive(double xSpeed, double zRotation, bool turnInPlace){
@@ -42,4 +40,25 @@ void RobotSubsystem::JoystickDrive(double xSpeed, double zRotation, bool turnInP
     } else {
         m_robotDrive.CurvatureDrive(-filter.Calculate(xSpeed), zRotation, turnInPlace);
     }
+}
+
+
+double RobotSubsystem::GetLeftEncoder(){
+    return m_leftEncoder.GetDistance();
+}
+
+double RobotSubsystem::GetRightEncoder(){
+    return m_rightEncoder.GetDistance();
+}
+
+frc::Pose2d RobotSubsystem::GetPose() {
+    return m_pose;
+}
+
+
+void RobotSubsystem::Reset(){
+    m_leftEncoder.Reset();
+    m_rightEncoder.Reset();
+
+    m_odometry.ResetPosition(m_gyro.GetRotation2d(), units::meter_t{m_leftEncoder.GetDistance()}, units::meter_t{m_rightEncoder.GetDistance()}, {});
 }

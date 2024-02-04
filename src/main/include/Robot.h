@@ -31,8 +31,6 @@ class Robot : public frc::TimedRobot {
   void AutonomousPeriodic() override;
   void TeleopInit() override;
   void TeleopPeriodic() override;
-  void RunConveyor();
-  void Drive();
 
  private:
   RobotSubsystem m_robotSubsystem;
