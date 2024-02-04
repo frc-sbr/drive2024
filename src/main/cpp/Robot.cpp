@@ -5,10 +5,14 @@
 #include "Robot.h"
 
 #include <fmt/core.h>
+#include <cameraserver/CameraServer.h>
+#include <frc/TimedRobot.h>
 
-#define TURBO_ENABLED 0
+#define TURBO_ENABLED 1
 
-void Robot::RobotInit() {}
+void Robot::RobotInit() {
+  frc::CameraServer::StartAutomaticCapture();
+}
 
 void Robot::RobotPeriodic() {
   frc::SmartDashboard::PutNumber("Left Encoder", m_robotSubsystem.GetLeftEncoder());
@@ -44,44 +48,8 @@ void Robot::TeleopPeriodic() {
       driveController.GetRawButton(1));
   #endif
 
-  m_robotSubsystem.RunConveyor(opController.GetRawAxis(2) - opController.GetRawAxis(3));
+  m_robotSubsystem.RunConveyor(opController.GetRawAxis(3) - opController.GetRawAxis(2));
 }
-
-// void Robot::RunConveyor(){
-//   if (opController.GetRawAxis(2)){
-//     m_conveyorMotor.Set(opController.GetRawAxis(2) * 0.3);
-//   } else if (opController.GetRawAxis(3)){
-//     m_conveyorMotor.Set(-opController.GetRawAxis(3) * 0.3);
-//   } else{
-//     m_conveyorMotor.Set(0);
-//   }
-// }
-
-// void Robot::Drive(){
-//   double leftJoystickX = driveController.GetRawAxis(0);
-//   double leftJoystickY = driveController.GetRawAxis(1);
-//   double leftTrigger = driveController.GetRawAxis(2);
-//   double rightTrigger = driveController.GetRawAxis(3);
-//   double rightJoystickX = driveController.GetRawAxis(4);
-//   double rightJoystickY = driveController.GetRawAxis(5);
-
-//   bool turnInPlace = (driveController.GetRawButton(1));
-
-//   #if TURBO_ENABLED 
-//     m_robotDrive.CurvatureDrive((rightTrigger - leftTrigger)/3, ((rightTrigger>0) ? 1 : -1)*rightJoystickX, turnInPlace);
-//   #else            
-//     m_robotDrive.ArcadeDrive(driveController.GetRawAxis(1)/2.0, driveController.GetRawAxis(4)/2.0);
-//   #endif
-// }
-
-// void Robot::RunClimber(double speed){
-//   if (abs(speed) < 0.05){
-//     speed = 0;
-//   }
-
-//   m_climbMotorLeft.Set(speed);
-//   m_climbMotorRight.Set(speed);
-// }
 
 #ifndef RUNNING_FRC_TESTS
 int main() {
