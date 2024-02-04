@@ -6,60 +6,73 @@
 
 #include <fmt/core.h>
 
-#define TURBO_ENABLED 1
+#define TURBO_ENABLED 0
 
-void Robot::RobotInit() {
-  m_leftMotor1.AddFollower(m_leftMotor2);
-  m_rightMotor1.AddFollower(m_rightMotor2);
-
-  m_rightMotor1.SetInverted(true);
-}
+void Robot::RobotInit() {}
 
 void Robot::RobotPeriodic() {
+  frc::SmartDashboard::PutNumber("Left Encoder", m_robotSubsystem.GetLeftEncoder());
+  frc::SmartDashboard::PutNumber("Right Encoder", m_robotSubsystem.GetRightEncoder());
 }
 
 void Robot::AutonomousInit() {
+  m_robotSubsystem.ResetEncoders();
 }
 
 void Robot::AutonomousPeriodic() {
-}
-
-void Robot::TeleopInit() {}
-
-void Robot::TeleopPeriodic() {
-  Drive();
-  RunConveyor();
-}
-
-void Robot::DisabledInit() {}
-
-void Robot::DisabledPeriodic() {}
-
-void Robot::TestInit() {}
-
-void Robot::TestPeriodic() {}
-
-void Robot::SimulationInit() {}
-
-void Robot::SimulationPeriodic() {}
-
-void Robot::RunConveyor(){
-  if (opController.GetRawAxis(2)){
-    m_conveyorMotor.Set(opController.GetRawAxis(2) * 0.3);
-  } else if (opController.GetRawAxis(3)){
-    m_conveyorMotor.Set(-opController.GetRawAxis(3) * 0.3);
-  } else{
-    m_conveyorMotor.Set(0);
+  if (m_robotSubsystem.GetLeftEncoder() < 0.3){
+    m_robotSubsystem.JoystickDrive(0.2, 0, false);
+  } else {
+    m_robotSubsystem.JoystickDrive(0, 0, false);
   }
 }
 
-void Robot::Drive(){
-  #if TURBO_ENABLED 
-    m_robotDrive.ArcadeDrive(driveController.GetRawAxis(1), -driveController.GetRawAxis(4));
-  #else             
-    m_robotDrive.ArcadeDrive(driveController.GetRawAxis(1)/2.0, driveController.GetRawAxis(4)/2.0);
-  #endif            
+void Robot::TeleopInit() {
+  m_robotSubsystem.ResetEncoders();
 }
+
+void Robot::TeleopPeriodic() {
+  #if TURBO_ENABLED
+    m_robotSubsystem.JoystickDrive(
+      driveController.GetRawAxis(3) - driveController.GetRawAxis(2), 
+      driveController.GetRawAxis(0), 
+      driveController.GetRawButton(1));
+  #else 
+    m_robotSubsystem.JoystickDrive(
+      (driveController.GetRawAxis(3) - driveController.GetRawAxis(2))/2, 
+      driveController.GetRawAxis(0), 
+      driveController.GetRawButton(1));
+  #endif
+
+  m_robotSubsystem.RunConveyor(opController.GetRawAxis(2) - opController.GetRawAxis(3));
+}
+
+// void Robot::RunConveyor(){
+//   if (opController.GetRawAxis(2)){
+//     m_conveyorMotor.Set(opController.GetRawAxis(2) * 0.3);
+//   } else if (opController.GetRawAxis(3)){
+//     m_conveyorMotor.Set(-opController.GetRawAxis(3) * 0.3);
+//   } else{
+//     m_conveyorMotor.Set(0);
+//   }
+// }
+
+// void Robot::Drive(){
+//   double leftJoystickX = driveController.GetRawAxis(0);
+//   double leftJoystickY = driveController.GetRawAxis(1);
+//   double leftTrigger = driveController.GetRawAxis(2);
+//   double rightTrigger = driveController.GetRawAxis(3);
+//   double rightJoystickX = driveController.GetRawAxis(4);
+//   double rightJoystickY = driveController.GetRawAxis(5);
+
+//   bool turnInPlace = (driveController.GetRawButton(1));
+
+//   #if TURBO_ENABLED 
+//     m_robotDrive.CurvatureDrive((rightTrigger - leftTrigger)/3, ((rightTrigger>0) ? 1 : -1)*rightJoystickX, turnInPlace);
+//   #else            
+//     m_robotDrive.ArcadeDrive(driveController.GetRawAxis(1)/2.0, driveController.GetRawAxis(4)/2.0);
+//   #endif
+// }
 
 // void Robot::RunClimber(double speed){
 //   if (abs(speed) < 0.05){
