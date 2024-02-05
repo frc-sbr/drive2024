@@ -9,6 +9,7 @@
 #include <frc/Encoder.h>
 #include <frc/kinematics/DifferentialDriveKinematics.h>
 #include <frc/smartdashboard/SmartDashboard.h>
+#include <AHRS.h>
 
 using namespace units;
 
@@ -18,9 +19,8 @@ class RobotSubsystem{
         void RunConveyor(double speed);
         void JoystickDrive(double xSpeed, double zRotation, bool turnInPlace);
         void Drive();
-        double GetLeftEncoder();
-        double GetRightEncoder();
         void ResetEncoders();
+        void StopMotors();
 
     private:
         const int lmotor_pwm_channel_1 = 9;
@@ -38,6 +38,8 @@ class RobotSubsystem{
 
         frc::Encoder m_leftEncoder{1, 2};
         frc::Encoder m_rightEncoder{7, 8};
+
+        AHRS m_gyro{frc::SPI::Port::kMXP};
 
         frc::DifferentialDrive m_robotDrive{m_leftMotor1, m_rightMotor1};
         frc::DifferentialDriveKinematics m_kinematics{0.381_m};

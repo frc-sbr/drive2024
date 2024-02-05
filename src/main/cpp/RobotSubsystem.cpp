@@ -14,23 +14,22 @@ RobotSubsystem::RobotSubsystem(){
 
     m_leftEncoder.SetReverseDirection(true);
     m_rightEncoder.SetReverseDirection(true);
+
+    m_gyro.Reset();
 }
 
 void RobotSubsystem::RunConveyor(double speed){
     m_conveyorMotor.Set(speed * 0.3);
 }
 
-double RobotSubsystem::GetLeftEncoder(){
-    return m_leftEncoder.GetDistance();
-}
-
-double RobotSubsystem::GetRightEncoder(){
-    return m_rightEncoder.GetDistance();
-}
-
 void RobotSubsystem::ResetEncoders(){
     m_leftEncoder.Reset();
     m_rightEncoder.Reset();
+}
+
+void RobotSubsystem::StopMotors(){
+    m_leftMotor1.Set(0);
+    m_rightMotor1.Set(0);   
 }
 
 void RobotSubsystem::JoystickDrive(double xSpeed, double zRotation, bool turnInPlace){

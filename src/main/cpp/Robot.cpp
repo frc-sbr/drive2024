@@ -11,8 +11,6 @@
 void Robot::RobotInit() {}
 
 void Robot::RobotPeriodic() {
-  frc::SmartDashboard::PutNumber("Left Encoder", m_robotSubsystem.GetLeftEncoder());
-  frc::SmartDashboard::PutNumber("Right Encoder", m_robotSubsystem.GetRightEncoder());
 }
 
 void Robot::AutonomousInit() {
@@ -20,11 +18,6 @@ void Robot::AutonomousInit() {
 }
 
 void Robot::AutonomousPeriodic() {
-  if (m_robotSubsystem.GetLeftEncoder() < 0.3){
-    m_robotSubsystem.JoystickDrive(0.2, 0, false);
-  } else {
-    m_robotSubsystem.JoystickDrive(0, 0, false);
-  }
 }
 
 void Robot::TeleopInit() {
