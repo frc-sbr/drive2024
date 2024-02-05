@@ -1,6 +1,7 @@
 #include "RobotSubsystem.h"
 #include "frc/Errors.h"
 #include "frc/SPI.h"
+#include <iostream>
 
 RobotSubsystem::RobotSubsystem() {
     m_leftMotor1.AddFollower(m_leftMotor2);
@@ -42,6 +43,23 @@ void RobotSubsystem::RunConveyor(double speed){
     m_conveyorMotor.Set(speed * 0.3);
 }
 
+void RobotSubsystem::SetSpeeds(const frc::DifferentialDriveWheelSpeeds& speeds) {
+  const auto leftFeedforward = m_feedforward.Calculate(speeds.left);
+  const auto rightFeedforward = m_feedforward.Calculate(speeds.right);
+  const double leftOutput = m_leftPIDController.Calculate(
+      m_leftEncoder.GetRate(), speeds.left.value());
+  const double rightOutput = m_rightPIDController.Calculate(
+      m_rightEncoder.GetRate(), speeds.right.value());
+
+  m_leftMotor1.SetVoltage(units::volt_t{leftOutput} + leftFeedforward);
+  m_rightMotor1.SetVoltage(units::volt_t{rightOutput} + rightFeedforward);
+}
+
+void RobotSubsystem::Drive(units::meters_per_second_t xSpeed,
+                       units::radians_per_second_t rot) {
+  SetSpeeds(m_kinematics.ToWheelSpeeds({xSpeed, 0_mps, rot}));
+}
+
 void RobotSubsystem::JoystickDrive(double xSpeed, double zRotation, bool turnInPlace){
     if (xSpeed > 0){
         if (turnInPlace)
@@ -53,6 +71,15 @@ void RobotSubsystem::JoystickDrive(double xSpeed, double zRotation, bool turnInP
     }
 }
 
+void RobotSubsystem::FollowTrajectory(frc::Trajectory trajectory) {
+    if (m_timer.Get() < trajectory.TotalTime()) {
+        frc::Trajectory::State goal = trajectory.Sample(m_timer.Get());
+        frc::ChassisSpeeds adjustedSpeeds = m_controller.Calculate(m_pose, goal);
+        Drive(adjustedSpeeds.vx, adjustedSpeeds.omega);
+    } else {
+        Drive(0_mps, 0_rad_per_s);
+    }
+}
 
 double RobotSubsystem::GetLeftEncoder(){
     return m_leftEncoder.GetDistance();
@@ -66,10 +93,16 @@ frc::Pose2d RobotSubsystem::GetPose() {
     return m_pose;
 }
 
+double RobotSubsystem::GetTime() {
+    return m_timer.Get().value();
+}
+
 
 void RobotSubsystem::Reset(){
     m_leftEncoder.Reset();
     m_rightEncoder.Reset();
 
     m_odometry.ResetPosition(m_gyro->GetRotation2d(), units::meter_t{m_leftEncoder.GetDistance()}, units::meter_t{m_rightEncoder.GetDistance()}, {});
+    m_timer.Reset();
+    m_timer.Start();
 }

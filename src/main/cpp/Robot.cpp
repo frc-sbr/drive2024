@@ -4,15 +4,19 @@
 
 #include "Robot.h"
 
+#include <Trajectory.h>
 #include <fmt/core.h>
 #include <cameraserver/CameraServer.h>
 #include <frc/TimedRobot.h>
+#include <iostream>
 
 #define TURBO_ENABLED 1
 
 // ROBOT ===================================================================
 void Robot::RobotInit() {
   frc::CameraServer::StartAutomaticCapture();
+  Trajectory::GenerateAutonTrajectory();
+  std::cout << "trajectory total time:" << Trajectory::m_autonTrajectory.TotalTime().value() <<  std::endl;
 }
 
 void Robot::RobotPeriodic() {
@@ -23,6 +27,8 @@ void Robot::RobotPeriodic() {
   frc::SmartDashboard::PutNumber("Pose Y", m_robotSubsystem.GetPose().Y().value());
   frc::SmartDashboard::PutNumber("Pose Rotation", m_robotSubsystem.GetPose().Rotation().Degrees().value());
 
+  frc::SmartDashboard::PutNumber("Time Elapsed", m_robotSubsystem.GetTime());
+
   m_robotSubsystem.Update();
 }
 
@@ -32,11 +38,7 @@ void Robot::AutonomousInit() {
 }
 
 void Robot::AutonomousPeriodic() {
-  if (m_robotSubsystem.GetLeftEncoder() < 0.3){
-    m_robotSubsystem.JoystickDrive(0.2, 0, false);
-  } else {
-    m_robotSubsystem.JoystickDrive(0, 0, false);
-  }
+  m_robotSubsystem.FollowTrajectory(Trajectory::m_autonTrajectory);
 }
 
 // TELEOP ==================================================================
