@@ -7,20 +7,37 @@
 #include <units/acceleration.h>
 #include <frc/motorcontrol/PWMSparkMax.h>
 #include <frc/Encoder.h>
+#include <frc/interfaces/Gyro.h>
 #include <frc/kinematics/DifferentialDriveKinematics.h>
 #include <frc/smartdashboard/SmartDashboard.h>
+#include <frc/kinematics/DifferentialDriveOdometry.h>
+#include <frc/geometry/Pose2d.h>
+#include <frc/controller/RamseteController.h>
+#include <frc/controller/PIDController.h>
+#include <frc/controller/SimpleMotorFeedforward.h>
+#include <frc/geometry/Translation2d.h>
+#include <frc2/command/SubsystemBase.h>
 #include <AHRS.h>
 
 using namespace units;
 
-class RobotSubsystem{
+class RobotSubsystem : public frc2::SubsystemBase{
     public:
         RobotSubsystem();
+
         void RunConveyor(double speed);
         void JoystickDrive(double xSpeed, double zRotation, bool turnInPlace);
-        void Drive();
-        void ResetEncoders();
+
+        double GetLeftEncoder();
+        double GetRightEncoder();
+        void ResetOdometry(frc::Pose2d pose);
+        void Drive(units::meters_per_second_t xSpeed, units::radians_per_second_t rot);
+        void Drive(frc::ChassisSpeeds chassisSpeed);
+        frc::ChassisSpeeds GetSpeed();
         void StopMotors();
+        void UpdateOdometry();
+
+        frc::Pose2d GetPose();
 
     private:
         const int lmotor_pwm_channel_1 = 9;
@@ -42,5 +59,11 @@ class RobotSubsystem{
         AHRS m_gyro{frc::SPI::Port::kMXP};
 
         frc::DifferentialDrive m_robotDrive{m_leftMotor1, m_rightMotor1};
-        frc::DifferentialDriveKinematics m_kinematics{0.381_m};
+        frc::DifferentialDriveKinematics m_kinematics{28_in};
+        frc::DifferentialDriveOdometry m_odometry{{}, units::meter_t{m_leftEncoder.GetDistance()}, units::meter_t{m_rightEncoder.GetDistance()}};
+        frc::PIDController m_leftPIDController{1.0, 0.0, 0.0};
+        frc::PIDController m_rightPIDController{1.0, 0.0, 0.0};
+        frc::SimpleMotorFeedforward<units::meters> m_feedforward{0.2_V, 3_V / 1_mps};
+
+        frc::RamseteController m_controller;
 };

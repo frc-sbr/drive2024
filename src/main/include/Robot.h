@@ -18,8 +18,11 @@
 #include <units/acceleration.h>
 #include <frc/motorcontrol/PWMSparkMax.h>
 #include <frc/AddressableLED.h>
+#include <frc2/command/CommandPtr.h>
 #include "RobotSubsystem.h"
+#include <pathplanner/lib/commands/PathPlannerAuto.h>
 
+using namespace pathplanner;
 using namespace units;
 
 
@@ -31,11 +34,10 @@ class Robot : public frc::TimedRobot {
   void AutonomousPeriodic() override;
   void TeleopInit() override;
   void TeleopPeriodic() override;
-  void RunConveyor();
-  void Drive();
 
  private:
   RobotSubsystem m_robotSubsystem;
+  frc2::CommandPtr m_autonomousCommand;
 
 	frc::Joystick driveController{1};
   frc::Joystick opController{2};
