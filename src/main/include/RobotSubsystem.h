@@ -46,12 +46,12 @@ class RobotSubsystem{
 
         frc::Encoder m_leftEncoder{1, 2};
         frc::Encoder m_rightEncoder{7, 8};
-        AHRS m_gyro{frc::SerialPort::kMXP};
+        AHRS *m_gyro;
 
         frc::DifferentialDrive m_robotDrive{m_leftMotor1, m_rightMotor1};
         // frc::DifferentialDriveKinematics m_kinematics{0.381_m};
         frc::Pose2d m_pose{};
-        frc::DifferentialDriveOdometry m_odometry{m_gyro.GetRotation2d(), units::meter_t{m_leftEncoder.GetDistance()}, units::meter_t{m_rightEncoder.GetDistance()}};
+        frc::DifferentialDriveOdometry m_odometry{{}, units::meter_t{m_leftEncoder.GetDistance()}, units::meter_t{m_rightEncoder.GetDistance()}};
 
         frc::RamseteController m_controller;
 };

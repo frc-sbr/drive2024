@@ -22,6 +22,8 @@ void Robot::RobotPeriodic() {
   frc::SmartDashboard::PutNumber("Pose X", m_robotSubsystem.GetPose().X().value());
   frc::SmartDashboard::PutNumber("Pose Y", m_robotSubsystem.GetPose().Y().value());
   frc::SmartDashboard::PutNumber("Pose Rotation", m_robotSubsystem.GetPose().Rotation().Degrees().value());
+
+  m_robotSubsystem.Update();
 }
 
 // AUTON  ==================================================================

@@ -1,6 +1,8 @@
 #include "RobotSubsystem.h"
+#include "frc/Errors.h"
+#include "frc/SPI.h"
 
-RobotSubsystem::RobotSubsystem(){
+RobotSubsystem::RobotSubsystem() {
     m_leftMotor1.AddFollower(m_leftMotor2);
     m_rightMotor1.AddFollower(m_rightMotor2);
 
@@ -14,11 +16,20 @@ RobotSubsystem::RobotSubsystem(){
 
     m_leftEncoder.SetReverseDirection(true);
     m_rightEncoder.SetReverseDirection(true);
+
+    try {
+        m_gyro = new AHRS(frc::SPI::Port::kMXP);
+    } catch (std::exception ex ) {
+        std::string err_string = "Error instantiating navX-MXP:  ";
+        err_string += ex.what();
+        FRC_ReportError(frc::err::Error, "{}", err_string);
+    }
 }
 
 void RobotSubsystem::Update() {
     // Get the rotation of the robot from the gyro.
-    frc::Rotation2d gyroAngle = m_gyro.GetRotation2d();
+    frc::Rotation2d gyroAngle = m_gyro->GetRotation2d();
+    frc::SmartDashboard::PutNumber("Gyro Angle", gyroAngle.Degrees().value());
 
     // Update the pose
     m_pose = m_odometry.Update(gyroAngle,
@@ -60,5 +71,5 @@ void RobotSubsystem::Reset(){
     m_leftEncoder.Reset();
     m_rightEncoder.Reset();
 
-    m_odometry.ResetPosition(m_gyro.GetRotation2d(), units::meter_t{m_leftEncoder.GetDistance()}, units::meter_t{m_rightEncoder.GetDistance()}, {});
+    m_odometry.ResetPosition(m_gyro->GetRotation2d(), units::meter_t{m_leftEncoder.GetDistance()}, units::meter_t{m_rightEncoder.GetDistance()}, {});
 }
