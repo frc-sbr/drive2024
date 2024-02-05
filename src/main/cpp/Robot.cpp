@@ -35,6 +35,7 @@ void Robot::RobotPeriodic() {
 // AUTON  ==================================================================
 void Robot::AutonomousInit() {
   m_robotSubsystem.Reset();
+  m_robotSubsystem.Reset(Trajectory::m_autonTrajectory.InitialPose());
 }
 
 void Robot::AutonomousPeriodic() {

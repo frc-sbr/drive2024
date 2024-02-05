@@ -1,6 +1,7 @@
 #include "RobotSubsystem.h"
 #include "frc/Errors.h"
 #include "frc/SPI.h"
+#include <frc/smartdashboard/SmartDashboard.h>
 #include <iostream>
 
 RobotSubsystem::RobotSubsystem() {
@@ -17,19 +18,11 @@ RobotSubsystem::RobotSubsystem() {
 
     m_leftEncoder.SetReverseDirection(true);
     m_rightEncoder.SetReverseDirection(true);
-
-    try {
-        m_gyro = new AHRS(frc::SPI::Port::kMXP);
-    } catch (std::exception ex ) {
-        std::string err_string = "Error instantiating navX-MXP:  ";
-        err_string += ex.what();
-        FRC_ReportError(frc::err::Error, "{}", err_string);
-    }
 }
 
 void RobotSubsystem::Update() {
     // Get the rotation of the robot from the gyro.
-    frc::Rotation2d gyroAngle = m_gyro->GetRotation2d();
+    frc::Rotation2d gyroAngle = m_gyro.GetRotation2d();
     frc::SmartDashboard::PutNumber("Gyro Angle", gyroAngle.Degrees().value());
 
     // Update the pose
@@ -75,6 +68,9 @@ void RobotSubsystem::FollowTrajectory(frc::Trajectory trajectory) {
     if (m_timer.Get() < trajectory.TotalTime()) {
         frc::Trajectory::State goal = trajectory.Sample(m_timer.Get());
         frc::ChassisSpeeds adjustedSpeeds = m_controller.Calculate(m_pose, goal);
+
+        frc::SmartDashboard::PutNumber("chassis speed vx", adjustedSpeeds.vx.value());
+        frc::SmartDashboard::PutNumber("chassis speed omega", adjustedSpeeds.omega.value());
         Drive(adjustedSpeeds.vx, adjustedSpeeds.omega);
     } else {
         Drive(0_mps, 0_rad_per_s);
@@ -102,7 +98,12 @@ void RobotSubsystem::Reset(){
     m_leftEncoder.Reset();
     m_rightEncoder.Reset();
 
-    m_odometry.ResetPosition(m_gyro->GetRotation2d(), units::meter_t{m_leftEncoder.GetDistance()}, units::meter_t{m_rightEncoder.GetDistance()}, {});
     m_timer.Reset();
     m_timer.Start();
+}
+
+void RobotSubsystem::Reset(const frc::Pose2d& pose) {
+    m_odometry.ResetPosition(m_gyro.GetRotation2d(),
+                           units::meter_t{m_leftEncoder.GetDistance()},
+                           units::meter_t{m_rightEncoder.GetDistance()}, pose);
 }

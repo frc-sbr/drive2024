@@ -39,7 +39,9 @@ class RobotSubsystem{
         double GetRightEncoder();
         frc::Pose2d GetPose();
         double GetTime();
+
         void Reset();
+        void Reset(const frc::Pose2d& pose);
 
     private:
         const int lmotor_pwm_channel_1 = 9;
@@ -57,7 +59,7 @@ class RobotSubsystem{
 
         frc::Encoder m_leftEncoder{1, 2};
         frc::Encoder m_rightEncoder{7, 8};
-        AHRS *m_gyro;
+        AHRS m_gyro{frc::SPI::Port::kMXP};
 
 
         // drivetrain
@@ -67,7 +69,9 @@ class RobotSubsystem{
 
         // drivetrain controllers
         frc::DifferentialDriveKinematics m_kinematics{28_in};
-        frc::DifferentialDriveOdometry m_odometry{{}, units::meter_t{m_leftEncoder.GetDistance()}, units::meter_t{m_rightEncoder.GetDistance()}}; // initialize odometry with a pose of (0,0) for x,y, 0,0 for encoder distances, 0 for angle
+        frc::DifferentialDriveOdometry m_odometry{
+            m_gyro.GetRotation2d(), units::meter_t{m_leftEncoder.GetDistance()},
+            units::meter_t{m_rightEncoder.GetDistance()}};
 
         frc::PIDController m_leftPIDController{1.0, 0.0, 0.0};
         frc::PIDController m_rightPIDController{1.0, 0.0, 0.0};
