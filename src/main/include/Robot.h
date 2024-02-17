@@ -34,9 +34,18 @@ class Robot : public frc::TimedRobot {
   void RunConveyor();
   void Drive();
 
+  void LEDRainbow();
+
  private:
   RobotSubsystem m_robotSubsystem;
 
 	frc::Joystick driveController{1};
   frc::Joystick opController{2};
+
+  const int led_pwm_channel = 4;
+
+  static constexpr int kLength = 60;
+  frc::AddressableLED m_led{led_pwm_channel};
+  std::array<frc::AddressableLED::LEDData, kLength> m_ledBuffer;
+  int firstPixelHue = 0;
 };

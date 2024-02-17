@@ -12,9 +12,15 @@
 
 void Robot::RobotInit() {
   frc::CameraServer::StartAutomaticCapture();
+
+  m_led.SetLength(kLength);
+  m_led.SetData(m_ledBuffer);
+  m_led.Start();
 }
 
 void Robot::RobotPeriodic() {
+  LEDRainbow();
+
   frc::SmartDashboard::PutNumber("Left Encoder", m_robotSubsystem.GetLeftEncoder());
   frc::SmartDashboard::PutNumber("Right Encoder", m_robotSubsystem.GetRightEncoder());
 }
@@ -49,6 +55,18 @@ void Robot::TeleopPeriodic() {
   #endif
 
   m_robotSubsystem.RunConveyor(opController.GetRawAxis(3) - opController.GetRawAxis(2));
+}
+
+
+void Robot::LEDRainbow(){
+  for (int i = 0; i < kLength; i++) {
+    const auto pixelHue = (firstPixelHue + (i * 180 / kLength)) % 180;
+    m_ledBuffer[i].SetHSV(pixelHue, 255, 128);
+  }
+  firstPixelHue += 3;
+  firstPixelHue %= 180;
+
+  m_led.SetData(m_ledBuffer);
 }
 
 #ifndef RUNNING_FRC_TESTS
