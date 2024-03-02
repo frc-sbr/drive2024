@@ -36,6 +36,7 @@ class RobotSubsystem : public frc2::SubsystemBase{
         frc::ChassisSpeeds GetSpeed();
         void StopMotors();
         void UpdateOdometry();
+        void SetMotorVoltage(units::volt_t left, units::volt_t right);
 
         frc::Pose2d GetPose();
 
@@ -51,10 +52,10 @@ class RobotSubsystem : public frc2::SubsystemBase{
         frc::PWMSparkMax m_leftMotor2{lmotor_pwm_channel_2};
         frc::PWMSparkMax m_rightMotor2{rmotor_pwm_channel_2};
         frc::PWMSparkMax m_conveyorMotor{conv_pwm_channel};
-        frc::SlewRateLimiter<units::dimensionless::scalar> filter{2/1_s};
+        frc::SlewRateLimiter<units::dimensionless::scalar> filter{1/1_s};
 
-        frc::Encoder m_leftEncoder{1, 2};
-        frc::Encoder m_rightEncoder{7, 8};
+        frc::Encoder m_leftEncoder{5, 6};
+        frc::Encoder m_rightEncoder{1, 2};
 
         AHRS m_gyro{frc::SPI::Port::kMXP};
 
@@ -63,7 +64,7 @@ class RobotSubsystem : public frc2::SubsystemBase{
         frc::DifferentialDriveOdometry m_odometry{{}, units::meter_t{m_leftEncoder.GetDistance()}, units::meter_t{m_rightEncoder.GetDistance()}};
         frc::PIDController m_leftPIDController{1.0, 0.0, 0.0};
         frc::PIDController m_rightPIDController{1.0, 0.0, 0.0};
-        frc::SimpleMotorFeedforward<units::meters> m_feedforward{0.2_V, 3_V / 1_mps};
+        frc::SimpleMotorFeedforward<units::meters> m_feedforward{0.69_V, 2.63_V / 1_mps};
 
         frc::RamseteController m_controller;
 };

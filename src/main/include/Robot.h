@@ -37,8 +37,9 @@ class Robot : public frc::TimedRobot {
 
  private:
   RobotSubsystem m_robotSubsystem;
-  frc2::CommandPtr m_autonomousCommand;
 
 	frc::Joystick driveController{1};
   frc::Joystick opController{2};
+
+  units::volt_t speed = 1_V;
 };

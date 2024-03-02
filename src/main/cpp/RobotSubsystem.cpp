@@ -63,13 +63,13 @@ void RobotSubsystem::StopMotors(){
 }
 
 void RobotSubsystem::JoystickDrive(double xSpeed, double zRotation, bool turnInPlace){
-    if (xSpeed > 0){
+    if (xSpeed >= 0){
         if (turnInPlace)
-            m_robotDrive.CurvatureDrive(-filter.Calculate(xSpeed), zRotation, turnInPlace);
+            m_robotDrive.CurvatureDrive(-filter.Calculate(xSpeed), -zRotation/2, turnInPlace);
         else 
-            m_robotDrive.CurvatureDrive(-filter.Calculate(xSpeed), -zRotation, turnInPlace);
+            m_robotDrive.CurvatureDrive(-filter.Calculate(xSpeed), -zRotation/2, turnInPlace);
     } else {
-        m_robotDrive.CurvatureDrive(-filter.Calculate(xSpeed), zRotation, turnInPlace);
+        m_robotDrive.CurvatureDrive(-filter.Calculate(xSpeed), zRotation/2, turnInPlace);
     }
 }
 
@@ -122,6 +122,11 @@ void RobotSubsystem::ResetOdometry(frc::Pose2d pose){
     m_rightEncoder.Reset();
 
     m_odometry.ResetPosition(m_gyro.GetRotation2d(), units::meter_t{m_leftEncoder.GetDistance()}, units::meter_t{m_rightEncoder.GetDistance()}, pose);
+}
+
+void RobotSubsystem::SetMotorVoltage(units::volt_t left, units::volt_t right){
+    m_leftMotor1.SetVoltage(left);
+    m_rightMotor1.SetVoltage(right);
 }
 
 frc::Pose2d RobotSubsystem::GetPose() {
