@@ -19,8 +19,8 @@
 #include <frc/motorcontrol/PWMSparkMax.h>
 #include <frc/AddressableLED.h>
 #include <frc2/command/CommandPtr.h>
-#include "RobotSubsystem.h"
 #include <pathplanner/lib/commands/PathPlannerAuto.h>
+#include "rev/CANSparkMax.h"
 
 using namespace pathplanner;
 using namespace units;
@@ -34,12 +34,24 @@ class Robot : public frc::TimedRobot {
   void AutonomousPeriodic() override;
   void TeleopInit() override;
   void TeleopPeriodic() override;
+  void Drive(double xSpeed, double zRotation, bool turnInPlace);
+  void RotateArm(double speed);
+  void RunShooter(double speed, bool shoot);
 
  private:
-  RobotSubsystem m_robotSubsystem;
+  frc::PWMSparkMax m_leftMotor1{9};
+  frc::PWMSparkMax  m_rightMotor1{0};
+  frc::PWMSparkMax m_leftMotor2{8};
+  frc::PWMSparkMax  m_rightMotor2{1};
+  frc::SlewRateLimiter<units::dimensionless::scalar> filter{1/1_s};
 
-	frc::Joystick driveController{1};
+  frc::DifferentialDrive m_robotDrive{m_leftMotor1, m_rightMotor1};
+
+  frc::PWMSparkMax rightSlammer{2};
+  frc::PWMSparkMax leftSlammer{3};
+  rev::CANSparkMax shootMotor1{6, rev::CANSparkMax::MotorType::kBrushless};
+  rev::CANSparkMax shootMotor2{4, rev::CANSparkMax::MotorType::kBrushless};
+
+  frc::Joystick driveController{1};
   frc::Joystick opController{2};
-
-  units::volt_t speed = 1_V;
 };

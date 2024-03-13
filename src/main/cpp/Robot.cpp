@@ -8,30 +8,21 @@
 #include <cameraserver/CameraServer.h>
 #include <frc/TimedRobot.h>
 
-#define TURBO_ENABLED 1
-
 // ROBOT ===================================================================
 void Robot::RobotInit() {
-  frc::CameraServer::StartAutomaticCapture();
+  m_leftMotor1.AddFollower(m_leftMotor2);
+  m_rightMotor1.AddFollower(m_rightMotor2);
+  shootMotor1.Follow(shootMotor2);
+
+  m_rightMotor1.SetInverted(true);
+  rightSlammer.SetInverted(true);
 }
 
 void Robot::RobotPeriodic() {
-  frc::SmartDashboard::PutNumber("Left Encoder Speed", m_robotSubsystem.GetLeftEncoder());
-  frc::SmartDashboard::PutNumber("Right Encoder Speed", m_robotSubsystem.GetRightEncoder());
-  frc::SmartDashboard::PutNumber("Motor Voltage", speed.value());
-
-  // frc::SmartDashboard::PutNumber("Pose X", m_robotSubsystem.GetPose().X().value());
-  // frc::SmartDashboard::PutNumber("Pose Y", m_robotSubsystem.GetPose().Y().value());
-  // frc::SmartDashboard::PutNumber("Pose Rotation", m_robotSubsystem.GetPose().Rotation().Degrees().value());
-
-  m_robotSubsystem.UpdateOdometry();
 }
 
 // AUTON  ==================================================================
 void Robot::AutonomousInit() {
-  m_robotSubsystem.ResetOdometry(m_robotSubsystem.GetPose());
-
-
 }
 
 void Robot::AutonomousPeriodic() {
@@ -39,38 +30,41 @@ void Robot::AutonomousPeriodic() {
 
 // TELEOP ==================================================================
 void Robot::TeleopInit() {
-  m_robotSubsystem.ResetOdometry(m_robotSubsystem.GetPose());
 }
 
 void Robot::TeleopPeriodic() {
-  //// NORMAL TELEOP
-  // #if TURBO_ENABLED
-  //   m_robotSubsystem.JoystickDrive(
-  //     driveController.GetRawAxis(3) - driveController.GetRawAxis(2), 
-  //     driveController.GetRawAxis(0), 
-  //     driveController.GetRawButton(1));
-  // #else 
-  //   m_robotSubsystem.JoystickDrive(
-  //     (driveController.GetRawAxis(3) - driveController.GetRawAxis(2))/2, 
-  //     driveController.GetRawAxis(0), 
-  //     driveController.GetRawButton(1));
-  // #endif
-  // m_robotSubsystem.RunConveyor(opController.GetRawAxis(3) - opController.GetRawAxis(2));
+  Drive( driveController.GetRawAxis(3) - driveController.GetRawAxis(2), 
+    driveController.GetRawAxis(0), 
+    driveController.GetRawButton(1));
+  RotateArm(opController.GetRawAxis(1));
+  RunShooter(opController.GetRawAxis(3) - opController.GetRawAxis(2), opController.GetRawButton(1));
+}
 
-  ////FEEDFORWARD AND FEEDBACK TELEOP
-  // m_robotSubsystem.Drive(
-  //   meters_per_second_t{-driveController.GetRawAxis(1) * 1.0}, 
-  //   radians_per_second_t{-driveController.GetRawAxis(4) * 3.0}); 
+void Robot::Drive(double xSpeed, double zRotation, bool turnInPlace){
+  if (xSpeed < 0){
+    zRotation = -zRotation;
+  }
 
-  ////VOLTAGE TELEOP
-  // if (driveController.GetRawButtonPressed(1)){
-  //   speed += 0.2_V;
-  // }
-  // if (driveController.GetRawButtonPressed(2)){
-  //   speed = 0.1_V;
-  // }
+  if (xSpeed > 0){
+      if (turnInPlace)
+          m_robotDrive.CurvatureDrive(-filter.Calculate(xSpeed), zRotation, turnInPlace);
+      else 
+          m_robotDrive.CurvatureDrive(-filter.Calculate(xSpeed), -zRotation, turnInPlace);
+  } else {
+      m_robotDrive.CurvatureDrive(-filter.Calculate(xSpeed), zRotation, turnInPlace);
+  }
+}
 
-  // m_robotSubsystem.SetMotorVoltage(speed, speed);
+void Robot::RotateArm(double speed){
+  rightSlammer.Set(speed);
+  leftSlammer.Set(speed);
+}
+
+void Robot::RunShooter(double speed, bool shoot){
+  if (shoot){
+    shootMotor1.Set(-1);
+  } else
+    shootMotor1.Set(speed * 0.1);
 }
 
 #ifndef RUNNING_FRC_TESTS
