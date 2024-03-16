@@ -53,8 +53,8 @@ class Robot : public frc::TimedRobot {
 
   frc::DifferentialDrive m_robotDrive{m_leftMotor1, m_rightMotor1};
 
-  frc::PWMSparkMax rightSlammer{2};
-  frc::PWMSparkMax leftSlammer{3};
+  rev::CANSparkMax rightSlammer{2, rev::CANSparkMax::MotorType::kBrushless};
+  rev::CANSparkMax leftSlammer{3, rev::CANSparkMax::MotorType::kBrushless};
   rev::CANSparkMax shootMotor1{5, rev::CANSparkMax::MotorType::kBrushless};
   rev::CANSparkMax shootMotor2{4, rev::CANSparkMax::MotorType::kBrushless};
 
