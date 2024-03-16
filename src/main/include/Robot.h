@@ -8,6 +8,7 @@
 
 #include <frc/TimedRobot.h>
 #include <frc/smartdashboard/SendableChooser.h>
+#include <frc/smartdashboard/SmartDashboard.h>
 #include <frc/Joystick.h>
 #include <frc/drive/DifferentialDrive.h>
 #include <frc/motorcontrol/MotorControllerGroup.h>
@@ -20,7 +21,11 @@
 #include <frc/AddressableLED.h>
 #include <frc2/command/CommandPtr.h>
 #include <pathplanner/lib/commands/PathPlannerAuto.h>
+#include <frc/controller/ArmFeedforward.h>
+#include <frc/controller/PIDController.h>
+#include <frc/Encoder.h>
 #include "rev/CANSparkMax.h"
+#include <frc/Timer.h>
 
 using namespace pathplanner;
 using namespace units;
@@ -36,7 +41,8 @@ class Robot : public frc::TimedRobot {
   void TeleopPeriodic() override;
   void Drive(double xSpeed, double zRotation, bool turnInPlace);
   void RotateArm(double speed);
-  void RunShooter(double speed, bool shoot);
+  void RunShooter(double speed);
+  void Shoot(units::second_t startTime);
 
  private:
   frc::PWMSparkMax m_leftMotor1{9};
@@ -49,9 +55,17 @@ class Robot : public frc::TimedRobot {
 
   frc::PWMSparkMax rightSlammer{2};
   frc::PWMSparkMax leftSlammer{3};
-  rev::CANSparkMax shootMotor1{6, rev::CANSparkMax::MotorType::kBrushless};
+  rev::CANSparkMax shootMotor1{5, rev::CANSparkMax::MotorType::kBrushless};
   rev::CANSparkMax shootMotor2{4, rev::CANSparkMax::MotorType::kBrushless};
 
-  frc::Joystick driveController{1};
-  frc::Joystick opController{2};
+  // frc::ArmFeedforward m_armFeedforward{0.0_V, 0.0_V, 1_V / 1_rad_per_s, 0_V};
+  // frc::PIDController m_armController{1.0, 0.0, 0.0};
+
+  frc::Encoder m_armEncoder{1, 2};
+
+  frc::Joystick driveController{0};
+  frc::Joystick opController{1};
+
+  bool isShooting = false;
+  units::second_t startTime = 0_s;
 };
