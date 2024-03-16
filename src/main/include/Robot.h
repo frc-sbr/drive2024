@@ -35,6 +35,7 @@ class Robot : public frc::TimedRobot {
   void Drive();
 
   void LEDRainbow();
+  void Solid(int r, int g, int b);
 
  private:
   RobotSubsystem m_robotSubsystem;
@@ -42,7 +43,10 @@ class Robot : public frc::TimedRobot {
 	frc::Joystick driveController{1};
   frc::Joystick opController{2};
 
+  frc::Encoder m_leftEncoder{1, 2};
+
   const int led_pwm_channel = 4;
+  const double climber_limit = 69420.0;
 
   static constexpr int kLength = 60;
   frc::AddressableLED m_led{led_pwm_channel};

@@ -43,3 +43,8 @@ void RobotSubsystem::JoystickDrive(double xSpeed, double zRotation, bool turnInP
         m_robotDrive.CurvatureDrive(-filter.Calculate(xSpeed), zRotation, turnInPlace);
     }
 }
+
+frc::Encoder& RobotSubsystem::GetClimbEncoder()
+{
+    return RobotSubsystem::climb_Encoder;
+}

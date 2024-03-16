@@ -19,7 +19,13 @@ void Robot::RobotInit() {
 }
 
 void Robot::RobotPeriodic() {
-  LEDRainbow();
+  double height = m_robotSubsystem.GetClimbEncoder().GetDistance();
+  if (height < climber_limit)
+  {
+    Solid(0, 205, 120); // green
+  }
+  else
+    Solid(255, 0 , 0); // not green
 
   frc::SmartDashboard::PutNumber("Left Encoder", m_robotSubsystem.GetLeftEncoder());
   frc::SmartDashboard::PutNumber("Right Encoder", m_robotSubsystem.GetRightEncoder());
@@ -57,6 +63,13 @@ void Robot::TeleopPeriodic() {
   m_robotSubsystem.RunConveyor(opController.GetRawAxis(3) - opController.GetRawAxis(2));
 }
 
+void Robot::Solid(int r, int g, int b)
+{
+  for (int i = 0; i < kLength; i++)
+  {
+    m_ledBuffer[i].SetRGB(r, g, b);
+  }
+}
 
 void Robot::LEDRainbow(){
   for (int i = 0; i < kLength; i++) {

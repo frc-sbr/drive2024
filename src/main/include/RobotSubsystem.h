@@ -21,6 +21,7 @@ class RobotSubsystem{
         double GetLeftEncoder();
         double GetRightEncoder();
         void ResetEncoders();
+        frc::Encoder& GetClimbEncoder();
 
     private:
         const int lmotor_pwm_channel_1 = 9;
@@ -41,4 +42,8 @@ class RobotSubsystem{
 
         frc::DifferentialDrive m_robotDrive{m_leftMotor1, m_rightMotor1};
         frc::DifferentialDriveKinematics m_kinematics{0.381_m};
+        
+        const int climber_pin_1 = 2;
+        const int climber_pin_2 = 3;
+        frc::Encoder climb_Encoder{climber_pin_1, climber_pin_2};
 };
