@@ -15,6 +15,7 @@ void Robot::RobotInit() {
   // shootMotor2.Follow(shootMotor1);
 
   m_armEncoder.SetDistancePerPulse(1.0 / 2048);
+  m_armEncoder.Reset();
 
   m_rightMotor1.SetInverted(true);
   rightSlammer.SetInverted(true);
@@ -37,22 +38,36 @@ void Robot::TeleopInit() {
 }
 
 void Robot::TeleopPeriodic() {
-  // Drive( driveController.GetRawAxis(3) - driveController.GetRawAxis(2), 
-  //   driveController.GetRawAxis(0), 
-  //   driveController.GetRawButton(1));
+  // DRIVE ====================================================================
+  Drive( driveController.GetRawAxis(3) - driveController.GetRawAxis(2), 
+    driveController.GetRawAxis(0), 
+    driveController.GetRawButton(1));
 
-  //RotateArm(opController.GetRawAxis(1));
+  // ARM ====================================================================
+  // if (opController.GetRawButton(5)){
+  //   setpoint = 0;
+  // } else if (opController.GetRawButton(6)){
+  //   setpoint = 0.5;
+  // } else if (opController.GetRawButton(7)){
+  //   setpoint = -0.1;
+  // } else if (opController.GetRawButton(8)){
+  //   setpoint = 0.3;
+  // }
+  RotateArm(opController.GetRawAxis(1));
+
+   // MECHANISM ==================================================================== 
   if (opController.GetRawButtonPressed(1)){
     isShooting = true;
     startTime = frc::Timer::GetFPGATimestamp();
   }
-  
+
   if (isShooting){
     Shoot(startTime);
   } else {
     RunShooter(opController.GetRawAxis(3) - opController.GetRawAxis(2));
   }
 
+  // TELEMETRY ====================================================================
   frc::SmartDashboard::PutNumber("Arm Angle", m_armEncoder.GetDistance());
 }
 
@@ -63,17 +78,25 @@ void Robot::Drive(double xSpeed, double zRotation, bool turnInPlace){
 
   if (xSpeed > 0){
       if (turnInPlace)
-          m_robotDrive.CurvatureDrive(-filter.Calculate(xSpeed), zRotation, turnInPlace);
+          m_robotDrive.CurvatureDrive(filter.Calculate(xSpeed), zRotation/2, turnInPlace);
       else 
           m_robotDrive.CurvatureDrive(-filter.Calculate(xSpeed), -zRotation, turnInPlace);
   } else {
-      m_robotDrive.CurvatureDrive(-filter.Calculate(xSpeed), zRotation, turnInPlace);
+      m_robotDrive.CurvatureDrive(-filter.Calculate(xSpeed), -zRotation, turnInPlace);
   }
 }
 
 void Robot::RotateArm(double speed){
+  if (abs(speed) < 0.1){
+    rightSlammer.Set(0);
+    leftSlammer.Set(0);
+    return;
+  }
   rightSlammer.Set(speed);
   leftSlammer.Set(speed);
+
+  // PID
+  // rightSlammer.Set(m_armController.Calculate(m_armEncoder.GetDistance(), setpoint));
 }
 
 void Robot::Shoot(units::second_t startTime){
