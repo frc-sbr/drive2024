@@ -69,6 +69,8 @@ void Robot::Solid(int r, int g, int b)
   {
     m_ledBuffer[i].SetRGB(r, g, b);
   }
+
+  m_led.SetData(m_ledBuffer);
 }
 
 void Robot::LEDRainbow(){
