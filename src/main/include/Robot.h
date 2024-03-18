@@ -67,7 +67,7 @@ class Robot : public frc::TimedRobot {
   frc::Joystick opController{1};
 
   bool isShooting = false;
-  bool doPid = false;
+  bool doPid = true;
   units::second_t startTime = 0_s;
   double setpoint = 0;
 };

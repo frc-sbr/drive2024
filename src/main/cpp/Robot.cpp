@@ -10,17 +10,20 @@
 
 // ROBOT ===================================================================
 void Robot::RobotInit() {
+  // Setting up drive motors
   m_leftMotor1.AddFollower(m_leftMotor2);
   m_rightMotor1.AddFollower(m_rightMotor2);
 
+  m_leftMotor1.SetInverted(false);
+  m_rightMotor1.SetInverted(true);
+
+  // Setting up robot Arm
   m_armEncoder.SetDistancePerPulse(1.0 / 2048);
   m_armEncoder.Reset();
   m_armController.SetIZone(0.015);
 
-  m_rightMotor1.SetInverted(true);
-
   rightSlammer.SetInverted(false);
-  leftSlammer.SetInverted(true);
+  leftSlammer.SetInverted(true);  
 }
 
 void Robot::RobotPeriodic() {
@@ -29,23 +32,38 @@ void Robot::RobotPeriodic() {
 
 // AUTON  ==================================================================
 void Robot::AutonomousInit() {
+  // setting initial conditions
+
+  //start time
   startTime = frc::Timer::GetFPGATimestamp();
+
+  //shoot angle & pid usage
+  setpoint = 0.267;
+  doPid = true;
 }
 
 void Robot::AutonomousPeriodic() {
-  units::second_t currentTime = frc::Timer::GetFPGATimestamp();
-  double elapsedTime = currentTime.value() - startTime.value();
+  double elapsedTime = frc::Timer::GetFPGATimestamp().value() - startTime.value();
 
-  if (elapsedTime < 2.5){
+  if (elapsedTime < 3){
+
+    // get arm into correct angle
+    RotateArm(0);
+  } else if (elapsedTime < 5.5){
+    
+    //shoot for 2.5 seconds
+    rightSlammer.Set(0);
+    leftSlammer.Set(0);
     Shoot(startTime);
-  } else {
+  } else if (elapsedTime < 9.5){
+
+    // taxi for 4 seconds
     shootMotor1.Set(0);
     shootMotor2.Set(0);
-  }
-
-  if (elapsedTime < 6.5 && elapsedTime > 2.5){
     Drive(0.5, 0, false);
   } else {
+
+    // stop
     Drive(0, 0, false);
   }
 
@@ -53,10 +71,15 @@ void Robot::AutonomousPeriodic() {
 
 // TELEOP ==================================================================
 void Robot::TeleopInit() {
+
+  //set all motors to 0
   shootMotor1.Set(0);
   shootMotor2.Set(0);
+  rightSlammer.Set(0);
+  leftSlammer.Set(0);
 
   isShooting = false;
+  doPid = true;
 }
 
 void Robot::TeleopPeriodic() {
@@ -67,6 +90,7 @@ void Robot::TeleopPeriodic() {
 
   // ARM ====================================================================
   if (opController.GetRawButtonPressed(1)){
+    // ground
     setpoint = 0;
   } else if (opController.GetRawButtonPressed(4)){
     // amp
@@ -79,25 +103,29 @@ void Robot::TeleopPeriodic() {
     setpoint = 0.058;
   }
 
-  if (abs(opController.GetRawAxis(1)) > 0.01){
-    setpoint = m_armEncoder.GetDistance();
+  // if the joystick is moved, disable pid
+  if (abs(opController.GetRawAxis(1)) > 0.04){
     doPid = false;
   }else 
     doPid = true;
 
   RotateArm(opController.GetRawAxis(1));
 
+  // if both joystick buttons are pressed, reset encoder
   if (opController.GetRawButton(9) && opController.GetRawButton(10)){
     setpoint = 0;
     m_armEncoder.Reset();
   }
 
-   // MECHANISM ==================================================================== 
+   // MECHANISM ====================================================================
+
+   // if both triggers are pressed for the first time, begin shooting 
   if (opController.GetRawAxis(2) == 1 && opController.GetRawAxis(3) == 1 && !isShooting){
     isShooting = true;
     startTime = frc::Timer::GetFPGATimestamp();
   }
 
+  // triggers are disabled during shoot
   if (isShooting){
     Shoot(startTime);
   } else {
@@ -126,6 +154,8 @@ void Robot::Drive(double xSpeed, double zRotation, bool turnInPlace){
 
 void Robot::RotateArm(double speed){
   if (doPid){
+
+    //calculate and set pid output
     double output = m_armController.Calculate(m_armEncoder.GetDistance(), setpoint);
     if (output > 1){
       output = 1;
@@ -134,28 +164,35 @@ void Robot::RotateArm(double speed){
     }
     rightSlammer.Set(output);
     leftSlammer.Set(output);
-    } else {
-      if (abs(speed) < 0.1){
-        rightSlammer.Set(0);
-        leftSlammer.Set(0);
-        return;
-      }
-      rightSlammer.Set(speed);
-      leftSlammer.Set(speed);
+  } else {
+
+    // set the joystick output, move the setpoint with the arm
+    if (abs(speed) < 0.1){
+      rightSlammer.Set(0);
+      leftSlammer.Set(0);
+      return;
+    }
+    rightSlammer.Set(speed);
+    leftSlammer.Set(speed);
+    setpoint = m_armEncoder.GetDistance();
   }
 }
 
 void Robot::Shoot(units::second_t startTime){
-
-  units::second_t currentTime = frc::Timer::GetFPGATimestamp();
-  double elapsedTime = currentTime.value() - startTime.value();
+  double elapsedTime = frc::Timer::GetFPGATimestamp().value() - startTime.value();
 
   if (elapsedTime < 0.5){
+
+    // rotate bottom wheel
     shootMotor2.Set(-1);
   } else if (elapsedTime < 1.5){
+
+    // rotate both wheels
     shootMotor2.Set(-1);
     shootMotor1.Set(1);
   } else {
+
+    // stop 
     shootMotor1.Set(0);
     shootMotor2.Set(0);
     isShooting = false;
