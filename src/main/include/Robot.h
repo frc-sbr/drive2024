@@ -59,7 +59,7 @@ class Robot : public frc::TimedRobot {
   rev::CANSparkMax shootMotor2{4, rev::CANSparkMax::MotorType::kBrushless};
 
   // frc::ArmFeedforward m_armFeedforward{0.0_V, 0.0_V, 1_V / 1_rad_per_s, 0_V};
-  frc::PIDController m_armController{5.0, 0.5, 0.1};
+  frc::PIDController m_armController{12.0, 1, 0};
 
   frc::Encoder m_armEncoder{1, 2};
 

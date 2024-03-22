@@ -14,8 +14,8 @@ void Robot::RobotInit() {
   m_leftMotor1.AddFollower(m_leftMotor2);
   m_rightMotor1.AddFollower(m_rightMotor2);
 
-  m_leftMotor1.SetInverted(false);
-  m_rightMotor1.SetInverted(true);
+  m_leftMotor1.SetInverted(true);
+  m_rightMotor1.SetInverted(false);
 
   // Setting up robot Arm
   m_armEncoder.SetDistancePerPulse(1.0 / 2048);
@@ -23,10 +23,12 @@ void Robot::RobotInit() {
   m_armController.SetIZone(0.015);
 
   rightSlammer.SetInverted(false);
-  leftSlammer.SetInverted(true);  
+  leftSlammer.SetInverted(true); 
+
+  frc::CameraServer::StartAutomaticCapture();
 }
 
-void Robot::RobotPeriodic() {
+void Robot::RobotPeriodic() { 
 
 }
 
@@ -50,17 +52,19 @@ void Robot::AutonomousPeriodic() {
     // get arm into correct angle
     RotateArm(0);
   } else if (elapsedTime < 5.5){
-    
+
     //shoot for 2.5 seconds
     rightSlammer.Set(0);
     leftSlammer.Set(0);
-    Shoot(startTime);
-  } else if (elapsedTime < 9.5){
-
-    // taxi for 4 seconds
+    Shoot(startTime + 3_s);
+  } else if (elapsedTime < 7){
+    
+    // taxi for 4 seconds and rotate arm into ground mode
+    setpoint = 0;
     shootMotor1.Set(0);
     shootMotor2.Set(0);
     Drive(0.5, 0, false);
+    RotateArm(0);
   } else {
 
     // stop
@@ -94,13 +98,13 @@ void Robot::TeleopPeriodic() {
     setpoint = 0;
   } else if (opController.GetRawButtonPressed(4)){
     // amp
-    setpoint = 0.129;
+    setpoint = 0.250;
   } else if (opController.GetRawButtonPressed(2)){
     // akimbo 
     setpoint = 0.267;
   } else if (opController.GetRawButtonPressed(3)){
     // intake
-    setpoint = 0.058;
+    setpoint = 0.055;
   }
 
   // if the joystick is moved, disable pid
@@ -120,7 +124,7 @@ void Robot::TeleopPeriodic() {
    // MECHANISM ====================================================================
 
    // if both triggers are pressed for the first time, begin shooting 
-  if (opController.GetRawAxis(2) == 1 && opController.GetRawAxis(3) == 1 && !isShooting){
+  if (opController.GetRawButtonPressed(6)){
     isShooting = true;
     startTime = frc::Timer::GetFPGATimestamp();
   }
@@ -144,11 +148,16 @@ void Robot::Drive(double xSpeed, double zRotation, bool turnInPlace){
 
   if (xSpeed > 0){
       if (turnInPlace)
-          m_robotDrive.CurvatureDrive(filter.Calculate(xSpeed), zRotation/2, turnInPlace);
+          m_robotDrive.CurvatureDrive(filter.Calculate(xSpeed), -zRotation/3, turnInPlace);
       else 
-          m_robotDrive.CurvatureDrive(-filter.Calculate(xSpeed), -zRotation, turnInPlace);
+          m_robotDrive.CurvatureDrive(-filter.Calculate(xSpeed), zRotation/1.5, turnInPlace);
   } else {
-      m_robotDrive.CurvatureDrive(-filter.Calculate(xSpeed), -zRotation, turnInPlace);
+    if (turnInPlace){
+      m_robotDrive.CurvatureDrive(-filter.Calculate(xSpeed), zRotation/3, turnInPlace);
+    } else {
+      m_robotDrive.CurvatureDrive(-filter.Calculate(xSpeed), zRotation/1.5, turnInPlace);
+    }
+      
   }
 }
 
@@ -201,8 +210,8 @@ void Robot::Shoot(units::second_t startTime){
 }
 
 void Robot::RunShooter(double speed){
-   shootMotor1.Set(speed * 0.1);
-   shootMotor2.Set(speed * -0.1);
+   shootMotor1.Set(speed * 0.15);
+   shootMotor2.Set(speed * -0.15);
 }
 
 #ifndef RUNNING_FRC_TESTS
