@@ -22,8 +22,16 @@ void Robot::RobotInit() {
 
   rightSlammer.SetInverted(false);
   leftSlammer.SetInverted(true); 
+  shootMotor1.SetInverted(true);
+  shootMotor2.SetInverted(true);
+  shootMotor3.SetInverted(false);
+  shootMotor4.SetInverted(false);
 
   frc::CameraServer::StartAutomaticCapture();
+
+  armEncoder = rightSlammer.GetEncoder(rev::SparkRelativeEncoder::Type::kHallSensor, 42);
+  armEncoder.SetPositionConversionFactor(1.0/400 * 2 * M_PI);
+  armEncoder.SetPosition(0);
 }
 
 void Robot::RobotPeriodic() { 
@@ -136,6 +144,7 @@ void Robot::TeleopPeriodic() {
   }
 
   // TELEMETRY ====================================================================
+  frc::SmartDashboard::PutNumber("Arm angle", armEncoder.GetPosition());
   frc::SmartDashboard::PutNumber("Current Setpoint", setpoint);
 }
 
@@ -175,27 +184,31 @@ void Robot::Shoot(units::second_t startTime){
 
   if (elapsedTime < 0.5){
 
-    // rotate bottom wheel
-    shootMotor2.Set(-1);
+    // rotate top wheel
+    shootMotor1.Set(1.0);
+    shootMotor2.Set(1.0);
   } else if (elapsedTime < 1.5){
 
     // rotate both wheels
-    shootMotor2.Set(-1);
-    shootMotor1.Set(1);
+    shootMotor1.Set(1.0);
+    shootMotor2.Set(1.0);
+    shootMotor3.Set(1.0);
+    shootMotor4.Set(1.0);
   } else {
 
-    // stop 
-    shootMotor1.Set(0);
-    shootMotor2.Set(0);
+    // stop  
     isShooting = false;
   }
 
 }
 
 void Robot::RunShooter(double speed){
-   shootMotor1.Set(speed * 0.15);
-   shootMotor2.Set(speed * -0.15);
+  shootMotor1.Set(speed);
+  shootMotor2.Set(speed);
+  shootMotor3.Set(speed);
+  shootMotor4.Set(speed);
 }
+
 
 #ifndef RUNNING_FRC_TESTS
 int main() {

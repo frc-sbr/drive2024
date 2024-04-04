@@ -25,6 +25,7 @@
 #include <frc/controller/PIDController.h>
 #include <frc/Encoder.h>
 #include "rev/CANSparkMax.h"
+#include "rev/SparkRelativeEncoder.h"
 #include <frc/Timer.h>
 
 using namespace pathplanner;
@@ -57,8 +58,10 @@ class Robot : public frc::TimedRobot {
   rev::CANSparkMax leftSlammer{3, rev::CANSparkMax::MotorType::kBrushless};
   rev::CANSparkMax shootMotor1{5, rev::CANSparkMax::MotorType::kBrushless};
   rev::CANSparkMax shootMotor2{4, rev::CANSparkMax::MotorType::kBrushless};
-  rev::CANSparkMax shootMotor3{6, rev::CANSparkMax::MotorType::kBrushless};
-  rev::CANSparkMax shootMotor4{7, rev::CANSparkMax::MotorType::kBrushless};
+  rev::CANSparkMax shootMotor3{6, rev::CANSparkMax::MotorType::kBrushed};
+  rev::CANSparkMax shootMotor4{7, rev::CANSparkMax::MotorType::kBrushed};
+
+  rev::SparkRelativeEncoder armEncoder;
 
   // frc::ArmFeedforward m_armFeedforward{0.0_V, 0.0_V, 1_V / 1_rad_per_s, 0_V};
   frc::PIDController m_armController{12.0, 1, 0};
