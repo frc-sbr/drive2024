@@ -18,8 +18,6 @@ void Robot::RobotInit() {
   m_rightMotor1.SetInverted(false);
 
   // Setting up robot Arm
-  m_armEncoder.SetDistancePerPulse(1.0 / 2048);
-  m_armEncoder.Reset();
   m_armController.SetIZone(0.015);
 
   rightSlammer.SetInverted(false);
@@ -71,6 +69,8 @@ void Robot::AutonomousPeriodic() {
     Drive(0, 0, false);
   }
 
+  frc::SmartDashboard::PutNumber("Current Setpoint", setpoint);
+
 }
 
 // TELEOP ==================================================================
@@ -118,7 +118,6 @@ void Robot::TeleopPeriodic() {
   // if both joystick buttons are pressed, reset encoder
   if (opController.GetRawButton(9) && opController.GetRawButton(10)){
     setpoint = 0;
-    m_armEncoder.Reset();
   }
 
    // MECHANISM ====================================================================
@@ -137,7 +136,6 @@ void Robot::TeleopPeriodic() {
   }
 
   // TELEMETRY ====================================================================
-  frc::SmartDashboard::PutNumber("Arm Angle", m_armEncoder.GetDistance());
   frc::SmartDashboard::PutNumber("Current Setpoint", setpoint);
 }
 
@@ -162,29 +160,14 @@ void Robot::Drive(double xSpeed, double zRotation, bool turnInPlace){
 }
 
 void Robot::RotateArm(double speed){
-  if (doPid){
-
-    //calculate and set pid output
-    double output = m_armController.Calculate(m_armEncoder.GetDistance(), setpoint);
-    if (output > 1){
-      output = 1;
-    } else if (output < -1){
-      output = -1;
-    }
-    rightSlammer.Set(output);
-    leftSlammer.Set(output);
-  } else {
-
-    // set the joystick output, move the setpoint with the arm
-    if (abs(speed) < 0.1){
-      rightSlammer.Set(0);
-      leftSlammer.Set(0);
-      return;
-    }
-    rightSlammer.Set(speed);
-    leftSlammer.Set(speed);
-    setpoint = m_armEncoder.GetDistance();
+  // set the joystick output, move the setpoint with the arm
+  if (abs(speed) < 0.1){
+    rightSlammer.Set(0);
+    leftSlammer.Set(0);
+    return;
   }
+  rightSlammer.Set(speed);
+  leftSlammer.Set(speed);
 }
 
 void Robot::Shoot(units::second_t startTime){

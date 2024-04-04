@@ -57,11 +57,11 @@ class Robot : public frc::TimedRobot {
   rev::CANSparkMax leftSlammer{3, rev::CANSparkMax::MotorType::kBrushless};
   rev::CANSparkMax shootMotor1{5, rev::CANSparkMax::MotorType::kBrushless};
   rev::CANSparkMax shootMotor2{4, rev::CANSparkMax::MotorType::kBrushless};
+  rev::CANSparkMax shootMotor3{6, rev::CANSparkMax::MotorType::kBrushless};
+  rev::CANSparkMax shootMotor4{7, rev::CANSparkMax::MotorType::kBrushless};
 
   // frc::ArmFeedforward m_armFeedforward{0.0_V, 0.0_V, 1_V / 1_rad_per_s, 0_V};
   frc::PIDController m_armController{12.0, 1, 0};
-
-  frc::Encoder m_armEncoder{1, 2};
 
   frc::Joystick driveController{0};
   frc::Joystick opController{1};
