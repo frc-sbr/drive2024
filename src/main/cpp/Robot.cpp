@@ -132,7 +132,7 @@ void Robot::TeleopPeriodic() {
     setpoint = AKIMBO;
   } else if (opController.GetRawButtonPressed(2)){
     // akimbo 
-    setpoint = 0.267;
+    setpoint = SHOOT;
   } else if (opController.GetRawButtonPressed(3)){
     // intake
     setpoint = INTAKE;
@@ -148,6 +148,7 @@ void Robot::TeleopPeriodic() {
 
   // if both joystick buttons are pressed, reset encoder
   if (opController.GetRawButton(9) && opController.GetRawButton(10)){
+    m_armEncoder.SetPosition(0);
     setpoint = ZERO;
   }
 
@@ -192,19 +193,18 @@ void Robot::Drive(double xSpeed, double zRotation, bool turnInPlace){
 }
 
 void Robot::RotateArm(double speed){
-  // if (doPid){
+  if (doPid){
 
-  //   //calculate and set pid output
-  //   double output = m_armController.Calculate(m_armEncoder.GetPosition(), setpoint);
-  //   if (output > 1){
-  //     output = 1;
-  //   } else if (output < -1){
-  //     output = -1;
-  //   }
-  //   rightSlammer.Set(output);
-  //   leftSlammer.Set(output);
-  // } else 
-  {
+    //calculate and set pid output
+    double output = m_armController.Calculate(m_armEncoder.GetPosition(), setpoint);
+    if (output > 1){
+      output = 1;
+    } else if (output < -1){
+      output = -1;
+    }
+    rightSlammer.Set(output);
+    leftSlammer.Set(output);
+  } else {
     // set the joystick output, move the setpoint with the arm
     if (abs(speed) < 0.1){
       rightSlammer.Set(0);

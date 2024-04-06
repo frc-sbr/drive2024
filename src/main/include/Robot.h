@@ -64,7 +64,7 @@ class Robot : public frc::TimedRobot {
   rev::SparkRelativeEncoder m_armEncoder{rightSlammer.GetEncoder(rev::SparkRelativeEncoder::Type::kHallSensor, 42)};
 
   // frc::ArmFeedforward m_armFeedforward{0.0_V, 0.0_V, 1_V / 1_rad_per_s, 0_V};
-  frc::PIDController m_armController{12.0, 1, 0};
+  frc::PIDController m_armController{2, 0.2, 0.05};
 
   frc::Joystick driveController{0};
   frc::Joystick opController{1};
@@ -79,9 +79,9 @@ class Robot : public frc::TimedRobot {
   const std::string kAutoTaxiShoot = "kAutoTaxiShoot";
   const std::string kAutoWait = "kAutoWait";
 
-  const double SHOOT = 0.25;
-  const double AKIMBO = 0.27;
-  const double INTAKE = 0.057; 
+  const double SHOOT = -0.746;
+  const double AKIMBO = -1.810;
+  const double INTAKE = -0.263; 
   const double ZERO = 0.0;
   std::string m_autoSelected;
 
