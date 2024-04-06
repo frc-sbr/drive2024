@@ -22,16 +22,25 @@ void Robot::RobotInit() {
 
   rightSlammer.SetInverted(false);
   leftSlammer.SetInverted(true); 
+
   shootMotor1.SetInverted(true);
-  shootMotor2.SetInverted(true);
+  shootMotor2.SetInverted(false);
   shootMotor3.SetInverted(false);
-  shootMotor4.SetInverted(false);
+  shootMotor4.SetInverted(true);
 
   frc::CameraServer::StartAutomaticCapture();
 
-  armEncoder = rightSlammer.GetEncoder(rev::SparkRelativeEncoder::Type::kHallSensor, 42);
-  armEncoder.SetPositionConversionFactor(1.0/400 * 2 * M_PI);
-  armEncoder.SetPosition(0);
+  m_armEncoder.SetPositionConversionFactor(1.0/400 * 2 * M_PI);
+  m_armEncoder.SetPosition(0);
+
+  // Setting up auto choosing
+  m_chooser.SetDefaultOption(kAutoTaxi, kAutoTaxi);
+  m_chooser.AddOption(kAutoShoot, kAutoShoot);
+  m_chooser.AddOption(kAutoWait, kAutoWait);
+  m_chooser.AddOption(kAutoTaxiShoot, kAutoTaxiShoot);
+  frc::SmartDashboard::PutData("Auto Modes", &m_chooser);
+
+  frc::CameraServer::StartAutomaticCapture();
 }
 
 void Robot::RobotPeriodic() { 
@@ -42,43 +51,57 @@ void Robot::RobotPeriodic() {
 void Robot::AutonomousInit() {
   // setting initial conditions
 
+  m_autoSelected = m_chooser.GetSelected();
+  
   //start time
   startTime = frc::Timer::GetFPGATimestamp();
 
   //shoot angle & pid usage
-  setpoint = 0.267;
   doPid = true;
 }
 
 void Robot::AutonomousPeriodic() {
   double elapsedTime = frc::Timer::GetFPGATimestamp().value() - startTime.value();
 
-  if (elapsedTime < 3){
+  if (m_autoSelected == kAutoTaxiShoot) {
+    setpoint = AKIMBO;
+    if (elapsedTime < 3){
 
-    // get arm into correct angle
-    RotateArm(0);
-  } else if (elapsedTime < 5.5){
+      // get arm into correct angle
+      RotateArm(0);
+    } else if (elapsedTime < 5.5){
 
-    //shoot for 2.5 seconds
-    rightSlammer.Set(0);
-    leftSlammer.Set(0);
-    Shoot(startTime + 3_s);
-  } else if (elapsedTime < 7){
-    
-    // taxi for 4 seconds and rotate arm into ground mode
-    setpoint = 0;
-    shootMotor1.Set(0);
-    shootMotor2.Set(0);
-    Drive(0.5, 0, false);
-    RotateArm(0);
-  } else {
+      //shoot for 2.5 seconds
+      rightSlammer.Set(0);
+      leftSlammer.Set(0);
+      Shoot(startTime + 3_s);
+    } else if (elapsedTime < 7){
+      
+      // taxi for 4 seconds and rotate arm into ground mode
+      setpoint = ZERO;
+      shootMotor1.Set(0);
+      shootMotor2.Set(0);
+      Drive(0.25, 0, false);
+      RotateArm(0);
+    } else {
+      // stop
 
-    // stop
-    Drive(0, 0, false);
+      rightSlammer.Set(0);
+      leftSlammer.Set(0);
+      Drive(0, 0, false);
+    }
   }
 
-  frc::SmartDashboard::PutNumber("Current Setpoint", setpoint);
+  else if (m_autoSelected == kAutoShoot) {
+    Shoot(startTime);
+  }
 
+  else if (m_autoSelected == kAutoTaxi){
+    if (elapsedTime < 4)
+      Drive(0.25, 0, false);
+  } else {
+    setpoint = INTAKE;
+  }
 }
 
 // TELEOP ==================================================================
@@ -103,16 +126,16 @@ void Robot::TeleopPeriodic() {
   // ARM ====================================================================
   if (opController.GetRawButtonPressed(1)){
     // ground
-    setpoint = 0;
+    setpoint = ZERO;
   } else if (opController.GetRawButtonPressed(4)){
     // amp
-    setpoint = 0.250;
+    setpoint = AKIMBO;
   } else if (opController.GetRawButtonPressed(2)){
     // akimbo 
     setpoint = 0.267;
   } else if (opController.GetRawButtonPressed(3)){
     // intake
-    setpoint = 0.055;
+    setpoint = INTAKE;
   }
 
   // if the joystick is moved, disable pid
@@ -125,7 +148,7 @@ void Robot::TeleopPeriodic() {
 
   // if both joystick buttons are pressed, reset encoder
   if (opController.GetRawButton(9) && opController.GetRawButton(10)){
-    setpoint = 0;
+    setpoint = ZERO;
   }
 
    // MECHANISM ====================================================================
@@ -144,7 +167,7 @@ void Robot::TeleopPeriodic() {
   }
 
   // TELEMETRY ====================================================================
-  frc::SmartDashboard::PutNumber("Arm angle", armEncoder.GetPosition());
+  frc::SmartDashboard::PutNumber("Arm angle", m_armEncoder.GetPosition());
   frc::SmartDashboard::PutNumber("Current Setpoint", setpoint);
 }
 
@@ -169,14 +192,29 @@ void Robot::Drive(double xSpeed, double zRotation, bool turnInPlace){
 }
 
 void Robot::RotateArm(double speed){
-  // set the joystick output, move the setpoint with the arm
-  if (abs(speed) < 0.1){
-    rightSlammer.Set(0);
-    leftSlammer.Set(0);
-    return;
+  // if (doPid){
+
+  //   //calculate and set pid output
+  //   double output = m_armController.Calculate(m_armEncoder.GetPosition(), setpoint);
+  //   if (output > 1){
+  //     output = 1;
+  //   } else if (output < -1){
+  //     output = -1;
+  //   }
+  //   rightSlammer.Set(output);
+  //   leftSlammer.Set(output);
+  // } else 
+  {
+    // set the joystick output, move the setpoint with the arm
+    if (abs(speed) < 0.1){
+      rightSlammer.Set(0);
+      leftSlammer.Set(0);
+      return;
+    }
+    rightSlammer.Set(speed);
+    leftSlammer.Set(speed);
+    setpoint = m_armEncoder.GetPosition();
   }
-  rightSlammer.Set(speed);
-  leftSlammer.Set(speed);
 }
 
 void Robot::Shoot(units::second_t startTime){
@@ -203,10 +241,10 @@ void Robot::Shoot(units::second_t startTime){
 }
 
 void Robot::RunShooter(double speed){
-  shootMotor1.Set(speed);
-  shootMotor2.Set(speed);
-  shootMotor3.Set(speed);
-  shootMotor4.Set(speed);
+  shootMotor1.Set(speed * 0.15);
+  shootMotor2.Set(speed * 0.15);
+  shootMotor3.Set(speed * 0.15);
+  shootMotor4.Set(speed * 0.15);
 }
 
 

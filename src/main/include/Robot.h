@@ -61,7 +61,7 @@ class Robot : public frc::TimedRobot {
   rev::CANSparkMax shootMotor3{6, rev::CANSparkMax::MotorType::kBrushed};
   rev::CANSparkMax shootMotor4{7, rev::CANSparkMax::MotorType::kBrushed};
 
-  rev::SparkRelativeEncoder armEncoder;
+  rev::SparkRelativeEncoder m_armEncoder{rightSlammer.GetEncoder(rev::SparkRelativeEncoder::Type::kHallSensor, 42)};
 
   // frc::ArmFeedforward m_armFeedforward{0.0_V, 0.0_V, 1_V / 1_rad_per_s, 0_V};
   frc::PIDController m_armController{12.0, 1, 0};
@@ -73,4 +73,17 @@ class Robot : public frc::TimedRobot {
   bool doPid = true;
   units::second_t startTime = 0_s;
   double setpoint = 0;
+
+  const std::string kAutoTaxi = "kAutoTaxi";
+  const std::string kAutoShoot = "kAutoShoot";
+  const std::string kAutoTaxiShoot = "kAutoTaxiShoot";
+  const std::string kAutoWait = "kAutoWait";
+
+  const double SHOOT = 0.25;
+  const double AKIMBO = 0.27;
+  const double INTAKE = 0.057; 
+  const double ZERO = 0.0;
+  std::string m_autoSelected;
+
+  frc::SendableChooser<std::string> m_chooser;
 };
