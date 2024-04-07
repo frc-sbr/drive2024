@@ -18,7 +18,7 @@ void Robot::RobotInit() {
   m_rightMotor1.SetInverted(false);
 
   // Setting up robot Arm
-  m_armController.SetIZone(0.015);
+  m_armController.SetIZone(0.100);
 
   rightSlammer.SetInverted(false);
   leftSlammer.SetInverted(true); 
@@ -64,7 +64,7 @@ void Robot::AutonomousPeriodic() {
   double elapsedTime = frc::Timer::GetFPGATimestamp().value() - startTime.value();
 
   if (m_autoSelected == kAutoTaxiShoot) {
-    setpoint = AKIMBO;
+    setpoint = SHOOT;
     if (elapsedTime < 3){
 
       // get arm into correct angle
@@ -78,10 +78,12 @@ void Robot::AutonomousPeriodic() {
     } else if (elapsedTime < 7){
       
       // taxi for 4 seconds and rotate arm into ground mode
-      setpoint = ZERO;
+      // setpoint = ZERO;
       shootMotor1.Set(0);
       shootMotor2.Set(0);
-      Drive(0.25, 0, false);
+      shootMotor4.Set(0);
+      shootMotor3.Set(0);
+      Drive(-0.4, 0, false);
       RotateArm(0);
     } else {
       // stop
@@ -110,6 +112,8 @@ void Robot::TeleopInit() {
   //set all motors to 0
   shootMotor1.Set(0);
   shootMotor2.Set(0);
+  shootMotor3.Set(0);
+  shootMotor4.Set(0);
   rightSlammer.Set(0);
   leftSlammer.Set(0);
 
